@@ -20,6 +20,7 @@ simple_command *load_command(char *line) {
     list_node *head;
 
     curr->args = NULL;
+    curr->flag = 0;
 
     while (token != NULL) {
         token = get_next_word(NULL);
@@ -29,17 +30,38 @@ simple_command *load_command(char *line) {
         list_node *buf = (list_node *) malloc(sizeof(list_node));
         node *curr_word = (node *) malloc(sizeof(node));
 
+        int is_bg = 0;
+
+        if (!is_quoted) {
+            char * pos = strchr(token, '&');
+            if (pos != NULL) {
+                if (*(pos++) != '\0') {
+                    *pos = '\0';
+                }
+                is_bg = 1;
+            }
+        }
+
         buf->word = curr_word;
         curr_word->text = token;
         curr_word->flag = is_quoted;
+        curr->flag |= is_bg;
+
+        if (is_bg) {
+            break;
+        }
 
         buf->next = NULL;
 
         if (curr->args == NULL) {
+            // connect args to buf
             curr->args = buf;
         } else {
+            // connect head to buf
             head->next = buf;
         }
+
+        // reposition head
         head = buf;
     }
 

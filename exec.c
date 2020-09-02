@@ -16,7 +16,16 @@ int (*builtin_functions[]) (list_node * arg) = {
     echo
 };
 
-int execute_command(node * command, list_node* arg) {
+
+
+int execute_in_foreground(node * command, list_node * arg) {
+
+}
+
+int execute_command(simple_command *cc) {
+
+    node * command = cc->name;
+    list_node * arg = cc->args;
 
     if (command == NULL) {
         printf("(null) command does not exist\n");
@@ -36,7 +45,11 @@ int execute_command(node * command, list_node* arg) {
     }
 
     if (!found) {
-        printf("system command\n");
+        if (cc->flag) {
+            execute_in_foreground(cc->name, cc->args);
+        }
     }
 
 }
+
+

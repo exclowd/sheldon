@@ -19,7 +19,7 @@ int main() {
         char ** args;
         for (int i = 0; i < len; i++) {
             command = load_command(argv[i]);
-            execute_command(command->name, command->args);
+            execute_command(command);
             free_command(command);
         }
         free(inp);

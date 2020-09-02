@@ -8,6 +8,8 @@
 #include "command.h"
 #include "builtins.h"
 
-int execute_command(node * command, list_node* arg);
+int execute_command(simple_command* command);
+
+int execute_in_foreground(node * command, list_node * arg);
 
 #endif //SHELDON_EXEC_H
