@@ -42,7 +42,7 @@ char *read_input() {
     while ((c = getchar())) {
         if (c == EOF) {
             free(input);
-            exit_safely();
+            exit_safely(0);
         }
         if (isspace(c)) {
             if (c == '\n') {

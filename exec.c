@@ -16,16 +16,48 @@ int (*builtin_functions[]) (list_node * arg) = {
     echo
 };
 
+int number_of_bg_processes = 0;
 
+int execute_system_command(node *command, list_node *arg, int flag) {
+    pid_t pid1;
+    char ** argv;
+    char ok;
+    int status = 0;
 
-int execute_in_foreground(node * command, list_node * arg) {
+    switch ((pid1 = fork())) {
 
+        case -1: // definitely parent
+            perror("fork: ");
+            return -1;
+        case 0: // is the child
+            argv = generate_argv(command, arg, 0);
+            if (flag == 1) { // if background
+                setpgid(0, 0);
+            }
+            execvp(command->text, argv);
+            perror("execute: ");
+            free(argv);
+            exit_abruptly(1);
+    }
+
+    if (pid1 > 0) {
+        if (flag == 1) {
+            printf("[%d] %s %d\n",number_of_bg_processes++, command->text, pid1);
+        } else {
+            waitpid(0, &status, 0);
+            return 0;
+        }
+    }
+
+    return -1;
 }
 
 int execute_command(simple_command *cc) {
 
     node * command = cc->name;
     list_node * arg = cc->args;
+
+    int ret = 0;
 
     if (command == NULL) {
         printf("(null) command does not exist\n");
@@ -44,12 +76,13 @@ int execute_command(simple_command *cc) {
         }
     }
 
+
     if (!found) {
-        if (cc->flag) {
-            execute_in_foreground(cc->name, cc->args);
-        }
+       ret  = execute_system_command(cc->name, cc->args, 0);
+
     }
 
+    return ret;
 }
 
 

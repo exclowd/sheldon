@@ -14,16 +14,18 @@ int main() {
     while (1) {
         display_prompt();
         inp = read_input();
-        int len = tokenize_input(&argv, inp);
+        int len = tokenize_input(&input_argv, inp);
         simple_command *command;
         char ** args;
         for (int i = 0; i < len; i++) {
-            command = load_command(argv[i]);
+            command = load_command(input_argv[i]);
+            current_command = command;
             execute_command(command);
             free_command(command);
+            current_command = (simple_command * ) NULL;
         }
         free(inp);
-        free(argv);
+        free(input_argv);
     }
 
     free(home);

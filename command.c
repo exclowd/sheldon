@@ -5,6 +5,8 @@
 #include "command.h"
 #include "parse.h"
 
+simple_command * current_command;
+
 simple_command *load_command(char *line) {
     simple_command *curr;
 
@@ -91,17 +93,19 @@ int list_length(list_node *list) {
 
 // always remember to free this pointer
 
-char **generate_argv(list_node *list, int starting_index) {
+char **generate_argv(node * command, list_node *list, int starting_index) {
     int count;
     char **array;
 
     count = list_length(list);
-    array = (char **) malloc((1 + count + starting_index) * sizeof(char *));
+    array = (char **) malloc((2 + count + starting_index) * sizeof(char *));
 
-    for (count = 0; count < starting_index; count++) {
+    array[0] = command->text;
+
+    for (count = 1; count <= starting_index; count++) {
         array[count] = (char *) NULL;
     }
-    for (count = starting_index; list; count++, list = list->next) {
+    for (count = starting_index + 1; list; count++, list = list->next) {
         array[count] = list->word->text;
     }
     array[count] = (char *) NULL;

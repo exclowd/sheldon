@@ -3,6 +3,7 @@
 //
 
 #include "utils.h"
+#include "command.h"
 
 char * home;
 
@@ -10,17 +11,26 @@ char * pwd;
 
 char *inp;
 
-char **argv;
+char **input_argv;
 
 static char buf[100];
 
 static char tdir[PATH_MAX];
 
-void exit_safely(void) {
+void exit_safely(int returncode) {
     free(home);
     free(pwd);
-    exit(0);
+    exit(returncode);
 };
+
+void exit_abruptly(int returncode) {
+    free(home);
+    free(pwd);
+    free(inp);
+    free(input_argv);
+    free_command(current_command);
+    exit(returncode);
+}
 
 void display_prompt(void) {
     struct utsname machine;

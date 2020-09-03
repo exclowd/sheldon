@@ -30,9 +30,11 @@ typedef struct SIMPLE_COMMAND {
 
 simple_command * load_command(char * line);
 
+extern simple_command * current_command;
+
 void free_command(simple_command * command);
 
-char ** generate_argv (list_node *list, int starting_index);
+char ** generate_argv (node * command,list_node *list, int starting_index);
 
 extern list_node *current; // the current list node
 

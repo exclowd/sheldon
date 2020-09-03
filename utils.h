@@ -21,10 +21,12 @@ extern char * pwd;
 
 extern char *inp;
 
-extern char **argv;
+extern char **input_argv;
 
 void display_prompt(void);
 
-void exit_safely(void);
+void exit_safely(int returncode);
+
+void exit_abruptly(int returcode);
 
 #endif //SHELDON_UTILS_H

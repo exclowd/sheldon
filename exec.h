@@ -7,9 +7,15 @@
 
 #include "command.h"
 #include "builtins.h"
+#include "utils.h"
+
+#include <sys/types.h>
+#include <sys/wait.h>
+
+extern int number_of_bg_processes;
 
 int execute_command(simple_command* command);
 
-int execute_in_foreground(node * command, list_node * arg);
+int execute_system_command(node *command, list_node *arg, int flag);
 
 #endif //SHELDON_EXEC_H
