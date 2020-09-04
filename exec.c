@@ -76,10 +76,8 @@ int execute_command(simple_command *cc) {
         }
     }
 
-
     if (!found) {
-       ret  = execute_system_command(cc->name, cc->args, 0);
-
+       ret  = execute_system_command(cc->name, cc->args, cc->flag);
     }
 
     return ret;

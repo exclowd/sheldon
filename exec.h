@@ -8,6 +8,7 @@
 #include "command.h"
 #include "builtins.h"
 #include "utils.h"
+#include "process.h"
 
 #include <sys/types.h>
 #include <sys/wait.h>

@@ -37,6 +37,7 @@ simple_command *load_command(char *line) {
         if (!is_quoted) {
             char * pos = strchr(token, '&');
             if (pos != NULL) {
+                *pos = '\0';
                 if (*(pos++) != '\0') {
                     *pos = '\0';
                 }
