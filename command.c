@@ -17,12 +17,31 @@ simple_command *load_command(char *line) {
     token = get_next_word(line);
 
     curr->name = (node *) malloc(sizeof(node));
-    curr->name->text = token;
-
-    list_node *head;
 
     curr->args = NULL;
     curr->flag = 0;
+
+    if (!is_quoted) {
+        char *pos = strchr(token, '&');
+        if (pos != NULL) {
+            *pos = '\0';
+            if (*(pos++) != '\0') {
+                *pos = '\0';
+            }
+            curr->flag |= 1;
+            curr->name->text = token;
+            return curr;
+        } else {
+            curr->name->text = token;
+        }
+    } else {
+        printf("Command name cannot be quoted...");
+        return NULL;
+    }
+
+
+
+    list_node *head;
 
     while (token != NULL) {
         token = get_next_word(NULL);
@@ -45,10 +64,17 @@ simple_command *load_command(char *line) {
             }
         }
 
-        buf->word = curr_word;
-        curr_word->text = token;
-        curr_word->flag = is_quoted;
-        curr->flag |= is_bg;
+        if (strlen(token) > 0) {
+            buf->word = curr_word;
+            curr_word->text = token;
+            curr_word->flag = is_quoted;
+            curr->flag |= is_bg;
+        } else {
+            curr->flag |= is_bg;
+            free(curr_word);
+            free(buf);
+            continue;
+        }
 
         if (is_bg) {
             break;

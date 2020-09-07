@@ -13,7 +13,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-extern int number_of_bg_processes;
 
 int execute_command(simple_command* command);
 

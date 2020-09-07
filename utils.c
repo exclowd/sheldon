@@ -4,6 +4,7 @@
 
 #include "utils.h"
 #include "command.h"
+#include "process.h"
 
 char * home;
 
@@ -20,6 +21,7 @@ static char tdir[PATH_MAX];
 void exit_safely(int returncode) {
     free(home);
     free(pwd);
+    kill_all_bgproc();
     exit(returncode);
 };
 
@@ -29,6 +31,7 @@ void exit_abruptly(int returncode) {
     free(inp);
     free(input_argv);
     free_command(current_command);
+    kill_all_bgproc();
     exit(returncode);
 }
 

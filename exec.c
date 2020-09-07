@@ -4,30 +4,27 @@
 
 #include "exec.h"
 
-const char * builtins[] = {
-    "cd",
-    "pwd",
-    "echo",
+const char *builtins[] = {
+        "cd",
+        "pwd",
+        "echo",
 };
 
-int (*builtin_functions[]) (list_node * arg) = {
-    change_directory,
-    print_current_working_directory,
-    echo
+int (*builtin_functions[])(list_node *arg) = {
+        change_directory,
+        print_current_working_directory,
+        echo
 };
-
-int number_of_bg_processes = 0;
 
 int execute_system_command(node *command, list_node *arg, int flag) {
     pid_t pid1;
-    char ** argv;
-    char ok;
+    char **argv;
     int status = 0;
 
     switch ((pid1 = fork())) {
 
         case -1: // definitely parent
-            perror("fork: ");
+            perror("fork");
             return -1;
         case 0: // is the child
             argv = generate_argv(command, arg, 0);
@@ -35,14 +32,19 @@ int execute_system_command(node *command, list_node *arg, int flag) {
                 setpgid(0, 0);
             }
             execvp(command->text, argv);
-            perror("execute: ");
+            perror("execute");
             free(argv);
             exit_abruptly(1);
     }
 
     if (pid1 > 0) {
         if (flag == 1) {
-            printf("[%d] %s %d\n",number_of_bg_processes++, command->text, pid1);
+            int res = add_process(pid1, command->text);
+            if (res) {
+                printf("\n[%d] %s %d\n", number_of_bg_processes, command->text, pid1);
+            } else {
+                return -1;
+            }
         } else {
             waitpid(0, &status, 0);
             return 0;
@@ -54,8 +56,8 @@ int execute_system_command(node *command, list_node *arg, int flag) {
 
 int execute_command(simple_command *cc) {
 
-    node * command = cc->name;
-    list_node * arg = cc->args;
+    node *command = cc->name;
+    list_node *arg = cc->args;
 
     int ret = 0;
 
@@ -77,7 +79,7 @@ int execute_command(simple_command *cc) {
     }
 
     if (!found) {
-       ret  = execute_system_command(cc->name, cc->args, cc->flag);
+        ret = execute_system_command(cc->name, cc->args, cc->flag);
     }
 
     return ret;

@@ -11,22 +11,32 @@ int main() {
     pwd = (char *) malloc(PATH_MAX);
     getcwd(pwd, PATH_MAX);
 
+    if (!init_bg_proc_q()) {
+        free(home);
+        free(pwd);
+        exit(1);
+    }
+
     while (1) {
         display_prompt();
         inp = read_input();
         int len = tokenize_input(&input_argv, inp);
         simple_command *command;
-        char ** args;
+        char **args;
+
         for (int i = 0; i < len; i++) {
             command = load_command(input_argv[i]);
-            current_command = command;
-            execute_command(command);
-            free_command(command);
-            current_command = (simple_command * ) NULL;
+            if (command != NULL) {
+                current_command = command;
+                execute_command(command);
+                free_command(command);
+            }
+            current_command = (simple_command *) NULL;
         }
+
+        poll_process();
         free(inp);
         free(input_argv);
     }
 
-    free(home);
 }
