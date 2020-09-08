@@ -7,6 +7,7 @@
 
 #include "builtins/cd.h"
 #include "builtins/echo.h"
+#include "builtins/ls.h"
 #include "utils.h"
 
 

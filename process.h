@@ -7,7 +7,9 @@
 
 #include <signal.h>
 #include <wait.h>
+#include "command.h"
 #include "utils.h"
+#include "limits.h"
 
 typedef struct PROCESS_NODE {
     int pid;
@@ -32,5 +34,7 @@ int add_process(int pid, char *command);
 void poll_process(void);
 
 void kill_all_bgproc ();
+
+int get_process_info(list_node * args);
 
 #endif //SHELDON_PROCESS_H

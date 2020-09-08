@@ -39,8 +39,6 @@ simple_command *load_command(char *line) {
         return NULL;
     }
 
-
-
     list_node *head;
 
     while (token != NULL) {
@@ -64,13 +62,13 @@ simple_command *load_command(char *line) {
             }
         }
 
+        curr->flag |= is_bg;
+
         if (strlen(token) > 0) {
             buf->word = curr_word;
             curr_word->text = token;
             curr_word->flag = is_quoted;
-            curr->flag |= is_bg;
         } else {
-            curr->flag |= is_bg;
             free(curr_word);
             free(buf);
             continue;
@@ -166,23 +164,30 @@ int getcommand_opt(list_node *list, char *opts) {
         current = head = list;
     }
 
-    if (idx == 1) { // starting a string of one or more commands
-        if (current == NULL && nonopt != NULL) {
+    if (idx == 1) { // starting a arg
+        if (current == NULL) {
             // nothing here
             head = (list_node *) NULL;
-            nonopt = current; // It it is null then the standard measures are to be taken
+            if (nonopt == NULL) {
+                nonopt = current; // If it is null then the standard measures are to be taken
+            }
             return -1; // Terminate
         }
+//        printf("current->word->text %s\n", current->word->text);
         if (*(current->word->text) != '-') {
-            nonopt = current;
+            if (nonopt == NULL)  {
+                nonopt = current;
+            }
             current = current->next;
             return 0;
         }
     }
 
+
     c = current->word->text[idx];
 
     if ((cp = strchr(opts, c)) == NULL) {
+
         if (current->word->text[++idx] == '\0') {
             current = current->next;
             idx = 1;
@@ -208,7 +213,9 @@ int getcommand_opt(list_node *list, char *opts) {
             return '?'; // Need Argument but not provided or invalid
         }
 
-    } else if (current->word->text[++idx] == '\0') {
+    }
+
+    if (current->word->text[++idx] == '\0') {
         current = current->next;
         idx = 1;
     }

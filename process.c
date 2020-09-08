@@ -8,9 +8,10 @@ process_list *bgproc;
 
 int number_of_bg_processes = 0;
 
-simple_process *createnode(pid_t pid, char *command) {
+simple_process *createNode(pid_t pid, char *command) {
     simple_process *newNode = malloc(sizeof(simple_process));
-    char * str = (char *) malloc(strlen(command) + 1);
+    char * str;
+    str = (char *) malloc(strlen(command) + 1);
     strncpy(str, command, strlen(command));
     str[strlen(command)] = '\0';
     if (!newNode) {
@@ -34,66 +35,67 @@ process_list *makelist() {
 }
 
 void display(process_list *list) {
-    simple_process *current = list->head;
-    if (list->head == NULL)
+    if (list->head == NULL) {
         return;
-
-    for (; current != NULL; current = current->next) {
-        printf("%d\n", current->pid);
+    }
+    for (simple_process *curr = list->head; curr != NULL; curr = curr->next) {
+        printf("%d\n", curr->pid);
     }
 }
 
 simple_process *add(int pid, char *command, process_list *list) {
-    simple_process *current = NULL;
+    simple_process *curr = NULL;
     if (list->head == NULL) {
-        list->head = createnode(pid, command);
+        list->head = createNode(pid, command);
         return list->head;
     } else {
-        current = list->head;
-        while (current->next != NULL) {
-            current = current->next;
+        curr = list->head;
+        while (curr->next != NULL) {
+            curr = curr->next;
         }
-        current->next = createnode(pid, command);
-        return current->next;
+        curr->next = createNode(pid, command);
+        return curr->next;
     }
 }
 
 void delete(int pid, process_list *list) {
-    simple_process *current = list->head;
-    simple_process *previous = current;
-    while (current != NULL) {
-        if (current->pid == pid) {
-            previous->next = current->next;
-            if (current == list->head)
-                list->head = current->next;
-            free(current);
+    simple_process *curr = list->head;
+    simple_process *previous = curr;
+    while (curr != NULL) {
+        if (curr->pid == pid) {
+            previous->next = curr->next;
+            if (curr == list->head) {
+                list->head = curr->next;
+            }
+            free(curr->command);
+            free(curr);
             return;
         }
-        previous = current;
-        current = current->next;
+        previous = curr;
+        curr = curr->next;
     }
 }
 
 simple_process *find(int pid, process_list *list) {
-    simple_process *current = list->head;
-    while (current != NULL) {
-        if (current->pid == pid) {
-            return current;
+    simple_process *curr = list->head;
+    while (curr != NULL) {
+        if (curr->pid == pid) {
+            return curr;
         }
-        current = current->next;
+        curr = curr->next;
     }
     return NULL;
 }
 
 void kill_all_bgproc() {
-    simple_process *current = bgproc->head;
-    simple_process *next = current;
-    while (current != NULL) {
-        kill(current->pid, SIGTERM);
-        free(current->command);
-        next = current->next;
-        free(current);
-        current = next;
+    simple_process *curr = bgproc->head;
+    simple_process *next = curr;
+    while (curr != NULL) {
+        free(curr->command);
+        kill(curr->pid, SIGTERM);
+        next = curr->next;
+        free(curr);
+        curr = next;
     }
     free(bgproc);
 }
@@ -105,6 +107,7 @@ int init_bg_proc_q() {
 
 int add_process(int pid, char *command) {
     simple_process *proc = add(pid, command, bgproc);
+    display(bgproc);
     return (proc != NULL);
 }
 
@@ -120,7 +123,7 @@ void poll_process(void) {
         } else if (pid > 0) {
             proc = find(pid, bgproc);
             if (proc != NULL) {
-                printf("Process [%d] %s [%d] exited with code: %d",
+                fprintf(stderr, "Process [%d] %s with pid [%d] exited with code: %d\n",
                        proc->id, proc->command, proc->pid, status);
                 delete(pid, bgproc);
             }
@@ -130,6 +133,78 @@ void poll_process(void) {
     }
 }
 
-void pinfo(pid_t pid) {
+void get_process_info_internal(pid_t pid) {
+    char * proc = (char *) malloc(PATH_MAX);
+    char * exec = (char *) malloc(PATH_MAX);
+    memset(exec, 0, PATH_MAX);
+    sprintf(proc,"/proc/%d/stat",pid);
+    FILE * fp = fopen(proc, "r");
+    if (fp == NULL) {
+        perror("pinfo");
+        free(proc);
+        free(exec);
+        return;
+    }
+    long unsigned memory = 0;
+    char status[] = {'\0', '\0', '\0'};
 
+
+    for (int i = 0; i < 23; i++) {
+        if (i == 2) {
+            fscanf(fp,"%1s", status);
+        } else if (i == 22) {
+            fscanf(fp,"%lu", &memory);
+        } else {
+            fscanf(fp, "%*s");
+        }
+    }
+
+    if (find(pid, bgproc)) {
+        status[1] = '+';
+    }
+
+    sprintf(proc, "/proc/%d/exe", pid);
+
+    size_t a = readlink(proc, exec, PATH_MAX);
+
+    if (a >= PATH_MAX) {
+        a = PATH_MAX - 1;
+    }
+    exec[a] = '\0';
+
+
+    printf("pid -- %d\n", pid);
+    printf("Process Status -- %s\n", status);
+    printf("memory -- %ld\n", memory);
+    printf("Executable Path -- %s\n", exec);
+
+    fclose(fp);
+
+    free(proc);
+    free(exec);
+}
+
+int get_process_info(list_node * args) {
+    if (args == (list_node *) NULL) {
+        get_process_info_internal(getpid());
+    } else {
+        for (list_node * curr = args; curr != NULL; curr = curr->next) {
+            char * endptr;
+            errno = 0;
+            long pid = strtol(curr->word->text, &endptr, 10);
+            if ((errno == ERANGE && (pid == LONG_MAX || pid == LONG_MIN))
+                || (errno != 0 && pid == 0)) {
+                perror("pinfo");
+                return -1;
+            }
+
+            if (endptr == curr->word->text) {
+                fprintf(stderr, "No valid digits were found\n");
+                return -1;
+            }
+
+            get_process_info_internal(pid);
+        }
+    }
+    return 0;
 }

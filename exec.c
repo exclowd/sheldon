@@ -8,12 +8,16 @@ const char *builtins[] = {
         "cd",
         "pwd",
         "echo",
+        "pinfo",
+        "ls"
 };
 
 int (*builtin_functions[])(list_node *arg) = {
         change_directory,
         print_current_working_directory,
-        echo
+        echo,
+        get_process_info,
+        list_files
 };
 
 int execute_system_command(node *command, list_node *arg, int flag) {

@@ -19,19 +19,19 @@ static char buf[100];
 static char tdir[PATH_MAX];
 
 void exit_safely(int returncode) {
+    kill_all_bgproc();
     free(home);
     free(pwd);
-    kill_all_bgproc();
     exit(returncode);
 };
 
 void exit_abruptly(int returncode) {
+    kill_all_bgproc();
     free(home);
     free(pwd);
     free(inp);
     free(input_argv);
     free_command(current_command);
-    kill_all_bgproc();
     exit(returncode);
 }
 
