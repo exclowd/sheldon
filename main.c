@@ -20,6 +20,7 @@ int main() {
     while (1) {
         display_prompt();
         inp = read_input();
+        init_terminal();
         int len = tokenize_input(&input_argv, inp);
         simple_command *command;
         char **args;

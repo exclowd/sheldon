@@ -18,6 +18,16 @@ static char buf[100];
 
 static char tdir[PATH_MAX];
 
+void exit_successfully() {
+    kill_all_bgproc();
+    free(home);
+    free(pwd);
+    free(inp);
+    free(input_argv);
+    free_command(current_command);
+    exit(0);
+}
+
 void exit_safely(int returncode) {
     kill_all_bgproc();
     free(home);
@@ -53,4 +63,10 @@ void display_prompt(void) {
     } else {
         printf("\e[1m%s\e[0m $ ", pwd);
     }
+}
+
+struct winsize terminal;
+
+void init_terminal() {
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal);
 }

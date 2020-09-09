@@ -14,6 +14,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <sys/utsname.h>
+#include <sys/ioctl.h>
 
 extern char * home;
 
@@ -23,10 +24,16 @@ extern char *inp;
 
 extern char **input_argv;
 
+extern struct winsize terminal;
+
+void exit_successfully(void);
+
 void display_prompt(void);
 
 void exit_safely(int returncode);
 
 void exit_abruptly(int returcode);
+
+void init_terminal();
 
 #endif //SHELDON_UTILS_H

@@ -183,10 +183,8 @@ int getcommand_opt(list_node *list, char *opts) {
 
     if (strchr(opts, c) == NULL) {
 
-        if (current->word->text[++idx] == '\0') {
-            current = current->next;
-            idx = 1;
-        }
+        nonopt = current;
+
         return '?'; // None of the options match not a valid arg
     }
 

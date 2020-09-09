@@ -9,6 +9,8 @@
 
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 
+int pprint = 0;
+
 enum filetype {
     unknown,
     fifo,
@@ -24,66 +26,95 @@ static char const filetype_letter[] = "?pcdb-ls";
 
 typedef struct FILE_INFO {
     char *name;
+    char *dir;
+    int is_quoted;
+    mode_t mode;
     enum filetype filetype;
 } fileinfo;
 
 fileinfo *files_under;
 
-static void attach(char *dest, const char *dirname, const char *name) {
+static void attach(char *pathname, char *dirname, const char *name) {
 
-    const char *pathname = dirname;
+    char *ptr = dirname;
 
     if (dirname[0] != '.' || dirname[1] != 0) {
-        while (*pathname) {
-            *dest = *pathname;
-            dest++;
-            pathname++;
+        while (*ptr) {
+            *pathname++ = *ptr++;
         }
-        if (pathname > dirname && pathname[-1] != '/') {
-            *dest = '/';
-            dest++;
+        if (ptr > dirname && ptr[-1] != '/') {
+            *pathname++ = '/';
         }
     }
+
     while (*name) {
-        *dest = *name;
-        dest++;
-        name++;
+        *pathname++ = *name++;
     }
-    *dest = 0;
+
+    *pathname = 0;
 }
 
 
 static int width = 0;
 
-static void print_format_short(char *dir, fileinfo *file) {
+static void print_format_short(fileinfo *file) {
+
+    if (pprint != 0 && pprint + width > terminal.ws_col) {
+        printf("\n");
+        pprint = 0;
+    }
+
+    char *color;
+
     if (file->filetype == directory) {
-        printf("\e[1m%.*s\e[0m ", width, file->name);
+        color = "[01;34m";
+    } else if (file->filetype == symbolic_link) {
+        color = "[01;36m";
+    } else if (file->filetype == fifo) {
+        color = "[01;33m";
+    } else if (file->filetype == normal && (file->mode & S_IEXEC)){
+        color = "[01;32m";
     } else {
-        printf("%.*s ", width, file->name);
+        color = "[0m";
+    }
+
+    if (file->is_quoted) {
+        printf("\e%s'%-*s'\e[0m", color,width, file->name);
+    } else {
+        printf("\e%s%-*s\e[0m",color, width, file->name);
+    }
+
+    pprint += width;
+
+    if (pprint > terminal.ws_col) {
+        printf("\n");
+        pprint = 0;
     }
 }
 
-static void print_format_long(char *dir, fileinfo *file) {
+static void print_format_long(fileinfo *file) {
     char *pathname;
-    pathname = (char *) malloc(sizeof(dir) + sizeof(file->name) + 2);
-    attach(pathname, dir, file->name);
+    pathname = (char *) malloc(strlen(file->dir) + strlen(file->name) + 4);
+    attach(pathname, file->dir, file->name);
+
     struct stat buf;
+
     if (lstat(pathname, &buf) == 0) {
         printf("%c", filetype_letter[file->filetype]);
 
         char perm[10];
         memset(perm, 0, sizeof(perm));
 
-        int masks[] = {
+        unsigned int masks[] = {
                 S_IRUSR, S_IWUSR, S_IXUSR,
                 S_IRGRP, S_IWGRP, S_IXGRP,
                 S_IROTH, S_IWOTH, S_IXOTH
         };
 
-        char c[] = {'r', 'w', 'x'};
+        unsigned char c[] = {'r', 'w', 'x'};
 
         for (int i = 0; i < 9; i++) {
-            perm[i] = !!(buf.st_mode & masks[i]) ? c[i % 3] : '-';
+            perm[i] = !!(file->mode & masks[i]) ? c[i % 3] : '-';
         }
 
         printf("%s ", perm);
@@ -96,31 +127,45 @@ static void print_format_long(char *dir, fileinfo *file) {
         char *username = getpwuid(buf.st_uid)->pw_name;
         char *groupname = getgrgid(buf.st_gid)->gr_name;
 
-        int usernamelen = (int) strlen(username);
-        int groupnamelen = (int) strlen(username);
+        int len_username = (int) strlen(username);
+        int len_groupname = (int) strlen(username);
 
         printf("%3ld %.*s %.*s %10ld %s ",
-               buf.st_nlink, usernamelen + 1, username,
-               groupnamelen + 1, groupname, buf.st_size, time + 4);
+               buf.st_nlink, len_username + 1, username,
+               len_groupname + 1, groupname, buf.st_size, time + 4);
 
         free(time);
 
+        char *color;
+
         if (file->filetype == directory) {
-            printf("\e[1m%.*s\e[0m\n", width, file->name);
+            color = "[01;34m";
+        } else if (file->filetype == symbolic_link) {
+            color = "[01;36m";
+        } else if (file->filetype == fifo) {
+            color = "[01;33m";
         } else {
-            printf("%.*s\n", width, file->name);
+            color = "[0m";
+        }
+
+        if (file->is_quoted) {
+            printf("\e%s'%-*s'\e[0m", color,width, file->name);
+        } else {
+            printf("\e%s%-*s\e[0m",color, width, file->name);
         }
 
     } else {
+
         perror("ls");
         free(pathname);
         return;
+
     }
 
     free(pathname);
 }
 
-void (*format_functions[])(char *dir, fileinfo *file) = {
+void (*format_functions[])(fileinfo *file) = {
         print_format_short,
         print_format_long
 };
@@ -135,12 +180,26 @@ static int remove_hidden(const struct dirent *dir) {
 
 static int load_file(char *dir, char *name, int i, int ll, long *total) {
     char *pathname;
-    pathname = (char *) malloc(sizeof(dir) + sizeof(name) + 2);
+
+    pathname = (char *) malloc(strlen(dir) + strlen(name) + 4);
+
     files_under[i].name = name;
+    files_under[i].dir = dir;
     files_under[i].filetype = unknown;
+
+    if (strchr(name, ' ') != NULL) {
+        printf("name = %s", name);
+        files_under[i].is_quoted = 1;
+    } else {
+        files_under[i].is_quoted = 0;
+    }
+
     attach(pathname, dir, name);
+
     struct stat buf;
+
     if (lstat(pathname, &buf) == 0) {
+
         switch (buf.st_mode & S_IFMT) {
             case S_IFBLK:
                 files_under[i].filetype = blockdev;
@@ -167,13 +226,21 @@ static int load_file(char *dir, char *name, int i, int ll, long *total) {
                 files_under[i].filetype = unknown;
                 break;
         }
+
+        files_under[i].mode = buf.st_mode;
+
         *total += buf.st_blocks;
+
     } else {
+
         perror("ls");
         free(pathname);
         return -1;
+
     }
+
     free(pathname);
+
     return 0;
 }
 
@@ -181,8 +248,9 @@ static int enumerate(char *dir, int all, int ll) {
     struct dirent **namelist;
     long total = 0;
 
+
     int n;
-    width = 0;
+    pprint = width = 0;
 
     n = (all ? scandir(dir, &namelist, NULL, alphasort) :
          scandir(dir, &namelist, remove_hidden, alphasort));
@@ -200,22 +268,21 @@ static int enumerate(char *dir, int all, int ll) {
             free(namelist);
             return -1;
         }
-        width = MAX(width, strlen(files_under[i].name) + 5);
+        width = MAX(width, strlen(files_under[i].name) + 2 + 1);
     }
 
     if (ll) {
-        printf("total %ldK\n", total >> 1);
+        printf("total %ldK\n", total / 2);
     }
 
     for (int i = 0; i < n; i++) {
-        format_functions[ll](dir, &files_under[i]);
+        format_functions[ll](&files_under[i]);
         free(namelist[i]);
     }
 
     free(files_under);
 
     free(namelist);
-
 
     printf("\n");
     return 0;
@@ -238,7 +305,7 @@ int list_files(list_node *args) {
                 all = 1;
                 break;
             case '?':
-                printf("Invalid argument: format ls -[a, l]\n");
+                fprintf(stderr,"ls: Invalid argument %s: format ls -[a, l]\n", nonopt->word->text);
                 return -1;
             default:
                 continue;
