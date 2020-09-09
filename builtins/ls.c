@@ -96,7 +96,7 @@ static void print_format_long(char *dir, fileinfo *file) {
         char *username = getpwuid(buf.st_uid)->pw_name;
         char *groupname = getgrgid(buf.st_gid)->gr_name;
 
-        int usernamelen = (int)strlen(username);
+        int usernamelen = (int) strlen(username);
         int groupnamelen = (int) strlen(username);
 
         printf("%3ld %.*s %.*s %10ld %s ",
@@ -229,7 +229,7 @@ int list_files(list_node *args) {
     int all = 0, ll = 0;
     char c;
     reset_getcommand_opt();
-    while ((c = getcommand_opt(args, "la")) != -1) {
+    while ((c = (char) getcommand_opt(args, "la")) != -1) {
         switch (c) {
             case 'l':
                 ll = 1;

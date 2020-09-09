@@ -140,19 +140,14 @@ char **generate_argv(node * command, list_node *list, int starting_index) {
 
 static int idx = 1;
 
-char *option_argument;
-
 static list_node *head = (list_node *) NULL; // saves last used list
 
 list_node *current = (list_node *) NULL; // the current list node
 
 list_node *nonopt; // start the execution from here
 
-#define DIGIT(c)    ((c) >= '0' && (c) <= '9')
-
 int getcommand_opt(list_node *list, char *opts) {
     char c;
-    char *cp;
 
     if (list == 0) {
         nonopt = NULL;
@@ -186,7 +181,7 @@ int getcommand_opt(list_node *list, char *opts) {
 
     c = current->word->text[idx];
 
-    if ((cp = strchr(opts, c)) == NULL) {
+    if (strchr(opts, c) == NULL) {
 
         if (current->word->text[++idx] == '\0') {
             current = current->next;
@@ -195,25 +190,6 @@ int getcommand_opt(list_node *list, char *opts) {
         return '?'; // None of the options match not a valid arg
     }
 
-    if (*++cp == ':') {
-
-        if (current->word->text[idx + 1]) {
-            if (DIGIT(current->word->text[idx + 1])) {
-                option_argument = current->word->text + idx + 1;
-                current = current->next;
-            } else {
-                option_argument = NULL;
-                return '?';
-            }
-        } else if (current->next && (*cp == ':' || *current->next->word->text != '-')) {
-            current = current->next;
-            option_argument = current->word->text;
-            current = current->next;
-        } else {
-            return '?'; // Need Argument but not provided or invalid
-        }
-
-    }
 
     if (current->word->text[++idx] == '\0') {
         current = current->next;

@@ -21,11 +21,11 @@ int (*builtin_functions[])(list_node *arg) = {
 };
 
 int execute_system_command(node *command, list_node *arg, int flag) {
-    pid_t pid1;
+    pid_t pid_1;
     char **argv;
     int status = 0;
 
-    switch ((pid1 = fork())) {
+    switch ((pid_1 = fork())) {
 
         case -1: // definitely parent
             perror("fork");
@@ -41,11 +41,11 @@ int execute_system_command(node *command, list_node *arg, int flag) {
             exit_abruptly(1);
     }
 
-    if (pid1 > 0) {
+    if (pid_1 > 0) {
         if (flag == 1) {
-            int res = add_process(pid1, command->text);
+            int res = add_process(pid_1, command->text);
             if (res) {
-                printf("\n[%d] %s %d\n", number_of_bg_processes, command->text, pid1);
+                printf("\n[%d] %s %d\n", number_of_bg_processes, command->text, pid_1);
             } else {
                 return -1;
             }
