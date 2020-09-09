@@ -107,7 +107,6 @@ int init_bg_proc_q() {
 
 int add_process(int pid, char *command) {
     simple_process *proc = add(pid, command, bgproc);
-    display(bgproc);
     return (proc != NULL);
 }
 

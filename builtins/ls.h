@@ -7,6 +7,9 @@
 
 #include "../utils.h"
 #include "../command.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "dirent.h"
 
 int list_files(list_node * args);
