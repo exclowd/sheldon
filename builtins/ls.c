@@ -139,7 +139,7 @@ static void print_format_long(fileinfo *file) {
         int len_username = (int) strlen(username);
         int len_groupname = (int) strlen(username);
 
-        printf("%3ld %.*s %.*s %10ld %s ",
+        printf("%3ld %-*s %-*s %8ld %s ",
                buf.st_nlink, len_username + 1, username,
                len_groupname + 1, groupname, buf.st_size, time + 4);
 

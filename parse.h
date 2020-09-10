@@ -10,7 +10,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
-#include "command.h"
 
 void display_prompt (void);
 

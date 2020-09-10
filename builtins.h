@@ -10,6 +10,4 @@
 #include "builtins/ls.h"
 #include "utils.h"
 
-
-
 #endif //SHELDON_BUILTINS_H
