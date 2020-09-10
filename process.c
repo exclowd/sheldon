@@ -145,7 +145,7 @@ void get_process_info_internal(pid_t pid) {
         return;
     }
     long unsigned memory = 0;
-    char status[] = {'\0', '\0'};
+    char status[] = {'\0', '\0', '\0'};
 
 
     for (int i = 0; i < 23; i++) {
@@ -156,6 +156,10 @@ void get_process_info_internal(pid_t pid) {
         } else {
             fscanf(fp, "%*s");
         }
+    }
+
+    if (getpgid(pid) == tcgetpgrp(0)) {
+        status[1] = '+';
     }
 
     sprintf(proc, "/proc/%d/exe", pid);

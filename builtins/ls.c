@@ -55,6 +55,9 @@ static void attach(char *pathname, char *dirname, const char *name) {
 }
 
 
+/*
+ * Formating short
+ */
 static int width = 0;
 
 static void print_format_short(fileinfo *file) {
@@ -72,16 +75,16 @@ static void print_format_short(fileinfo *file) {
         color = "[01;36m";
     } else if (file->filetype == fifo) {
         color = "[01;33m";
-    } else if (file->filetype == normal && (file->mode & S_IEXEC)){
+    } else if (file->filetype == normal && (file->mode & S_IEXEC)) {
         color = "[01;32m";
     } else {
         color = "[0m";
     }
 
     if (file->is_quoted) {
-        printf("\e%s'%-*s'\e[0m", color,width, file->name);
+        printf("\e%s'%s'\e[0m%-*s", color, file->name, width - (int) strlen(file->name) - 2, "");
     } else {
-        printf("\e%s%-*s\e[0m",color, width, file->name);
+        printf("\e%s%-*s\e[0m", color, width, file->name);
     }
 
     pprint += width;
@@ -91,6 +94,12 @@ static void print_format_short(fileinfo *file) {
         pprint = 0;
     }
 }
+
+/*
+ *
+ * Formatting Long
+ *
+ */
 
 static void print_format_long(fileinfo *file) {
     char *pathname;
@@ -149,9 +158,9 @@ static void print_format_long(fileinfo *file) {
         }
 
         if (file->is_quoted) {
-            printf("\e%s'%-*s'\e[0m", color,width, file->name);
+            printf("\e%s'%s'\e[0m%-*s", color, file->name, width - (int) strlen(file->name) - 2, "");
         } else {
-            printf("\e%s%-*s\e[0m",color, width, file->name);
+            printf("\e%s%-*s\e[0m", color, width, file->name);
         }
 
     } else {
@@ -161,6 +170,8 @@ static void print_format_long(fileinfo *file) {
         return;
 
     }
+
+    puts("");
 
     free(pathname);
 }
@@ -183,16 +194,15 @@ static int load_file(char *dir, char *name, int i, int ll, long *total) {
 
     pathname = (char *) malloc(strlen(dir) + strlen(name) + 4);
 
-    files_under[i].name = name;
-    files_under[i].dir = dir;
-    files_under[i].filetype = unknown;
-
     if (strchr(name, ' ') != NULL) {
-        printf("name = %s", name);
         files_under[i].is_quoted = 1;
     } else {
         files_under[i].is_quoted = 0;
     }
+
+    files_under[i].name = name;
+    files_under[i].dir = dir;
+    files_under[i].filetype = unknown;
 
     attach(pathname, dir, name);
 
@@ -248,16 +258,19 @@ static int enumerate(char *dir, int all, int ll) {
     struct dirent **namelist;
     long total = 0;
 
-
     int n;
     pprint = width = 0;
+
+    errno = 0;
 
     n = (all ? scandir(dir, &namelist, NULL, alphasort) :
          scandir(dir, &namelist, remove_hidden, alphasort));
 
+
     if (n == -1) {
-        perror("ls");
         return -1;
+    } else if (n == 0) {
+        return 0;
     }
 
     files_under = (fileinfo *) malloc(sizeof(fileinfo) * (n + 1));
@@ -288,6 +301,32 @@ static int enumerate(char *dir, int all, int ll) {
     return 0;
 }
 
+static int list_file(char *file, int all, int ll) {
+    files_under = (fileinfo *) malloc(sizeof(fileinfo) * (1));
+
+    long total = 0;
+
+    if (load_file(".", file, 0, ll, &total) == -1) {
+        free(files_under);
+        return -1;
+    }
+    width = strlen(files_under[0].name) + 2 + 1;
+
+    format_functions[ll](&files_under[0]);
+
+    free(files_under);
+    printf("\n");
+    return 0;
+}
+
+
+static int is_dir(char *dir) {
+    struct stat dir_stat;
+    if (stat(dir, &dir_stat) != 0)
+        return 0;
+    return S_ISDIR(dir_stat.st_mode);
+}
+
 int list_files(list_node *args) {
     if (args == NULL) {
         enumerate(".", 0, 0);
@@ -305,7 +344,7 @@ int list_files(list_node *args) {
                 all = 1;
                 break;
             case '?':
-                fprintf(stderr,"ls: Invalid argument %s: format ls -[a, l]\n", nonopt->word->text);
+                fprintf(stderr, "ls: Invalid argument %s: format ls -[a, l]\n", nonopt->word->text);
                 return -1;
             default:
                 continue;
@@ -314,11 +353,25 @@ int list_files(list_node *args) {
     if (nonopt == NULL) {
         enumerate(".", all, ll);
     } else {
+        int cnt = 0;
         for (list_node *curr = nonopt; curr != NULL; curr = curr->next) {
             if (*(curr->word->text) != '-') {
-                if (enumerate(curr->word->text, all, ll) == -1) {
-                    return -1;
+                cnt++;
+            }
+        }
+        for (list_node *curr = nonopt; curr != NULL; curr = curr->next) {
+            if (*(curr->word->text) != '-') {
+                if (cnt > 1) printf("%s:\n", curr->word->text);
+                if (is_dir(curr->word->text)) {
+                    if (enumerate(curr->word->text, all, ll) == -1) {
+                        return -1;
+                    }
+                } else {
+                    if (list_file(curr->word->text, all, ll) == -1) {
+
+                    }
                 }
+                if (cnt > 1) printf("\n");
             }
         }
     }

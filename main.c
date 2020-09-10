@@ -23,7 +23,6 @@ int main() {
         init_terminal();
         int len = tokenize_input(&input_argv, inp);
         simple_command *command;
-        char **args;
 
         for (int i = 0; i < len; i++) {
             command = load_command(input_argv[i]);

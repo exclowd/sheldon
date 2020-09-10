@@ -38,7 +38,7 @@ int execute_system_command(node *command, list_node *arg, int flag) {
                 setpgid(0, 0);
             }
             execvp(command->text, argv);
-            perror("execute");
+            perror("sheldon : command");
             free(argv);
             exit_abruptly(1);
     }
@@ -67,7 +67,7 @@ int execute_command(simple_command *cc) {
 
     int ret = 0;
 
-    if (command == NULL) {
+    if (command == NULL || command->text == NULL || strlen(command->text) == 0) {
         printf("(null) command does not exist\n");
         return -1;
     }

@@ -6,9 +6,9 @@
 #include "command.h"
 #include "process.h"
 
-char * home;
+char *home;
 
-char * pwd;
+char *pwd;
 
 char *inp;
 
@@ -55,8 +55,8 @@ void display_prompt(void) {
     // good name
 
     int l = (int) strlen(home);
-    if (l > 1 && strncmp(home, pwd, l) == 0  && (!pwd[l] || pwd[l] == '/')) {
-        strncpy (tdir + 1, pwd + l, sizeof(tdir) - 2);
+    if (l > 1 && strncmp(home, pwd, l) == 0 && (!pwd[l] || pwd[l] == '/')) {
+        strncpy(tdir + 1, pwd + l, sizeof(tdir) - 2);
         tdir[0] = '~';
         tdir[sizeof(tdir) - 1] = '\0';
         printf("\e[1m%s\e[0m $ ", tdir);
