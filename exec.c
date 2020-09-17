@@ -14,12 +14,12 @@ const char *builtins[] = {
 };
 
 int (*builtin_functions[])(list_node *arg) = {
-        change_directory,
-        print_current_working_directory,
-        echo,
-        get_process_info,
-        list_files,
-        (int (*)(list_node *)) exit_successfully
+    change_directory,
+    print_current_working_directory,
+    echo,
+    get_process_info,
+    list_files_internal,
+    (int (*)(list_node *)) exit_successfully
 };
 
 int execute_system_command(node *command, list_node *arg, int flag) {

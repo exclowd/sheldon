@@ -21,7 +21,7 @@ int main() {
         display_prompt();
         inp = read_input();
         init_terminal();
-        int len = tokenize_input(&input_argv, inp);
+        int len = split_into_commands(&input_argv, inp);
         simple_command *command;
 
         for (int i = 0; i < len; i++) {

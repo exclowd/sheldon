@@ -1,23 +1,19 @@
 //
+// parse.c - implementation of functions such as tokenize input_string into argv, get next word into a string
 // Created by kannav on 9/1/20.
 //
 
 #include "parse.h"
 
-int tokenize_input(char ***argv, char *inp) {
+int split_into_commands(char ***argv, char *inp) {
     char *token;
-
     token = strtok(inp, ";");
-
     int it = 0;
-
     int buffer_size = 10;
     *argv = (char **) malloc(buffer_size * sizeof(char *));
 
     while (token != NULL) {
-
         if (token == NULL) break;
-
         (*argv)[it++] = token;
         token = strtok(NULL, ";");
         if (it == buffer_size) {
@@ -37,77 +33,67 @@ enum parser_state {
     SPACE
 };
 
-int i = 0;
-
-static int len = 0;
-
+static int curr_index = 0;
+static int length = 0;
 static char *input;
-
-int is_quoted = 0;
+int is_quoted;
 
 char *get_next_word(char *line) {
     enum parser_state state = INIT;
     char c;
 
     if (line != NULL) {
-        i = 0;
+        curr_index = 0;
         input = line;
-        len = (int) strlen(input);
+        length = (int) strlen(input);
     }
 
     char *last_word;
-    if (i == len) {
+    if (curr_index == length) {
         return NULL;
     }
 
     is_quoted = 0;
 
-    while (i < len) {
-        c = input[i];
+    while (curr_index < length) {
+        c = input[curr_index];
         if (isspace(c)) {
-
             if (state != SINGLE_QUOTE && state != DOUBLE_QUOTE) {
-                input[i] = '\0';
-                i++;
+                input[curr_index] = '\0';
+                curr_index++;
                 return last_word;
             }
-
         } else if (c == '"') {
-
             if (state == DOUBLE_QUOTE) {
-                input[i] = '\0';
-                i++;
+                input[curr_index] = '\0';
+                curr_index++;
                 return last_word;
             } else if (state != SINGLE_QUOTE) {
                 state = DOUBLE_QUOTE;
-                last_word = input + i + 1;
-                input[i] = '\0';
+                last_word = input + curr_index + 1;
+                input[curr_index] = '\0';
                 is_quoted = 1;
             }
-
         } else if (c == '\'') {
-
             if (state == SINGLE_QUOTE) {
-                input[i] = '\0';
-                i++;
+                input[curr_index] = '\0';
+                curr_index++;
                 return last_word;
             } else if (state != DOUBLE_QUOTE) {
                 state = SINGLE_QUOTE;
-                last_word = input + i + 1;
-                input[i] = '\0';
+                last_word = input + curr_index + 1;
+                input[curr_index] = '\0';
                 is_quoted = 1;
             }
-
         } else {
-
             if (state == INIT) {
-                last_word = input + i;
+                last_word = input + curr_index;
                 state = WORD;
             }
-
         }
-        i++;
+        curr_index++;
     }
+
     return last_word;
 }
 

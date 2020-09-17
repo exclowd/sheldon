@@ -11,11 +11,11 @@
 #include <ctype.h>
 #include <unistd.h>
 
-void display_prompt (void);
+void display_prompt(void);
 
-int tokenize_input (char *** argv, char * input);
+int split_into_commands(char ***argv, char *input);
 
-char * get_next_word (char * line);
+char *get_next_word(char *line);
 
 extern int is_quoted;
 

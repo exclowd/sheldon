@@ -12,7 +12,7 @@ The following functions are implemented
 * Runs all the commands
 
 ### Assumptions:
-* No Assumptions in input size.
+* No Assumptions in input_string size.
 * Multiline echo
 * Username is truncated to 100 digits
 * ~ expansion is supported in echo also, use quotes for character '~'
@@ -24,8 +24,8 @@ The following functions are implemented
 
 ##### File Structure
 * main.c : main loop of the shell.
-* input.c : reads input from stdin.
-* parse.c : parses the input and tokenizes into commands.
+* input_string.c : reads input_string from stdin.
+* parse.c : parses the input_string and tokenizes into commands.
 * command.c : Takes a command and breaks it into command name, args etc. 
 Loads the command into command list.
 * exec.c : executes the command by calling the respective functions.
