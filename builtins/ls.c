@@ -33,9 +33,7 @@ typedef struct FILE_INFO {
 file_info *files_under;
 
 static void attach(char *pathname, char *dirname, const char *name) {
-
     char *ptr = dirname;
-
     if (dirname[0] != '.' || dirname[1] != 0) {
         while (*ptr) {
             *pathname++ = *ptr++;
@@ -44,11 +42,9 @@ static void attach(char *pathname, char *dirname, const char *name) {
             *pathname++ = '/';
         }
     }
-
     while (*name) {
         *pathname++ = *name++;
     }
-
     *pathname = 0;
 }
 
@@ -81,7 +77,8 @@ static void print_format_short(file_info *file) {
                 color = "[0m";
             }
             break;
-        default:color = "[0m"; break;
+        default:color = "[0m";
+            break;
     }
 
     if (file->is_quoted) {
@@ -113,8 +110,8 @@ static void print_format_long(file_info *file) {
     if (lstat(pathname, &buf) == 0) {
         printf("%c", filetype_letter[file->filetype]);
 
-        char perm[10];
-        memset(perm, 0, sizeof(perm));
+        char permissions[10];
+        memset(permissions, 0, sizeof(permissions));
 
         unsigned int masks[] = {
             S_IRUSR, S_IWUSR, S_IXUSR,
@@ -125,10 +122,10 @@ static void print_format_long(file_info *file) {
         unsigned char c[] = {'r', 'w', 'x'};
 
         for (int i = 0; i < 9; i++) {
-            perm[i] = !!(file->mode & masks[i]) ? c[i % 3] : '-';
+            permissions[i] = !!(file->mode & masks[i]) ? c[i % 3] : '-';
         }
 
-        printf("%s ", perm);
+        printf("%s ", permissions);
 
         char *time = (char *) malloc(256);
 
@@ -164,7 +161,8 @@ static void print_format_long(file_info *file) {
                     color = "[0m";
                 }
                 break;
-            default:color = "[0m"; break;
+            default:color = "[0m";
+                break;
         }
 
         if (file->is_quoted) {

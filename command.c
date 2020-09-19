@@ -5,7 +5,7 @@
 #include "command.h"
 #include "parse.h"
 
-simple_command * current_command;
+simple_command *current_command;
 
 simple_command *load_command(char *line) {
     simple_command *curr;
@@ -52,7 +52,7 @@ simple_command *load_command(char *line) {
         int is_bg = 0;
 
         if (!is_quoted) {
-            char * pos = strchr(token, '&');
+            char *pos = strchr(token, '&');
             if (pos != NULL) {
                 *pos = '\0';
                 if (*(pos++) != '\0') {
@@ -118,7 +118,7 @@ int list_length(list_node *list) {
 
 // always remember to free this pointer
 
-char **generate_argv(node * command, list_node *list, int starting_index) {
+char **generate_argv(node *command, list_node *list, int starting_index) {
     int count;
     char **array;
 
@@ -170,14 +170,13 @@ int getcommand_opt(list_node *list, char *opts) {
         }
 //        printf("current->word->text %s\n", current->word->text);
         if (*(current->word->text) != '-') {
-            if (nonopt == NULL)  {
+            if (nonopt == NULL) {
                 nonopt = current;
             }
             current = current->next;
             return 0;
         }
     }
-
 
     c = current->word->text[idx];
 
@@ -188,7 +187,6 @@ int getcommand_opt(list_node *list, char *opts) {
         return '?'; // None of the options match not a valid arg
     }
 
-
     if (current->word->text[++idx] == '\0') {
         current = current->next;
         idx = 1;
@@ -196,7 +194,6 @@ int getcommand_opt(list_node *list, char *opts) {
 
     return c;
 }
-
 
 void reset_getcommand_opt(void) {
     head = current = nonopt = (list_node *) NULL;

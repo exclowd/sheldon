@@ -97,7 +97,6 @@ char *read_input() {
                 state = WORD;
             }
         }
-
         input_size++;
         if (input_size == buffer_size - 1) {
             buffer_size += 100;

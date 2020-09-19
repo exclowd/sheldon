@@ -28,11 +28,9 @@ extern struct winsize terminal;
 
 void exit_successfully(void);
 
-void display_prompt(void);
+void exit_safely(int return_code);
 
-void exit_safely(int returncode);
-
-void exit_abruptly(int returcode);
+void exit_abruptly(int return_code);
 
 void init_terminal();
 
