@@ -17,11 +17,11 @@ simple_process *createNode(pid_t pid, char *command) {
     if (!newNode) {
         return NULL;
     }
-    newNode->pid = pid;
-    newNode->id = ++number_of_bg_processes;
+    newNode->_pid = pid;
+    newNode->_id = ++number_of_bg_processes;
     newNode->status = 0;
-    newNode->command = str;
-    newNode->next = NULL;
+    newNode->_command = str;
+    newNode->_node = NULL;
     return newNode;
 }
 
@@ -38,8 +38,8 @@ void display(process_list *list) {
     if (list->head == NULL) {
         return;
     }
-    for (simple_process *curr = list->head; curr != NULL; curr = curr->next) {
-        printf("%d\n", curr->pid);
+    for (simple_process *curr = list->head; curr != NULL; curr = curr->_node) {
+        printf("%d\n", curr->_pid);
     }
 }
 
@@ -50,11 +50,11 @@ simple_process *add(int pid, char *command, process_list *list) {
         return list->head;
     } else {
         curr = list->head;
-        while (curr->next != NULL) {
-            curr = curr->next;
+        while (curr->_node != NULL) {
+            curr = curr->_node;
         }
-        curr->next = createNode(pid, command);
-        return curr->next;
+        curr->_node = createNode(pid, command);
+        return curr->_node;
     }
 }
 
@@ -62,27 +62,27 @@ void delete(int pid, process_list *list) {
     simple_process *curr = list->head;
     simple_process *previous = curr;
     while (curr != NULL) {
-        if (curr->pid == pid) {
-            previous->next = curr->next;
+        if (curr->_pid == pid) {
+            previous->_node = curr->_node;
             if (curr == list->head) {
-                list->head = curr->next;
+                list->head = curr->_node;
             }
-            free(curr->command);
+            free(curr->_command);
             free(curr);
             return;
         }
         previous = curr;
-        curr = curr->next;
+        curr = curr->_node;
     }
 }
 
 simple_process *find(int pid, process_list *list) {
     simple_process *curr = list->head;
     while (curr != NULL) {
-        if (curr->pid == pid) {
+        if (curr->_pid == pid) {
             return curr;
         }
-        curr = curr->next;
+        curr = curr->_node;
     }
     return NULL;
 }
@@ -91,9 +91,9 @@ void kill_all_bgproc() {
     simple_process *curr = bgproc->head;
     simple_process *next = curr;
     while (curr != NULL) {
-        free(curr->command);
-        kill(curr->pid, SIGTERM);
-        next = curr->next;
+        free(curr->_command);
+        kill(curr->_pid, SIGTERM);
+        next = curr->_node;
         free(curr);
         curr = next;
     }
@@ -122,8 +122,8 @@ void poll_process(void) {
         } else if (pid > 0) {
             proc = find(pid, bgproc);
             if (proc != NULL) {
-                fprintf(stderr, "Process [%d] %s with pid [%d] exited with code: %d\n",
-                       proc->id, proc->command, proc->pid, status);
+                fprintf(stderr, "Process [%d] %s with _pid [%d] exited with code: %d\n",
+                        proc->_id, proc->_command, proc->_pid, status);
                 delete(pid, bgproc);
             }
         } else {
@@ -172,7 +172,7 @@ void get_process_info_internal(pid_t pid) {
     exec[a] = '\0';
 
 
-    printf("pid -- %d\n", pid);
+    printf("_pid -- %d\n", pid);
     printf("Process Status -- %s\n", status);
     printf("memory -- %ld\n", memory);
     printf("Executable Path -- %s\n", exec);
@@ -183,21 +183,21 @@ void get_process_info_internal(pid_t pid) {
     free(exec);
 }
 
-int get_process_info(list_node * args) {
-    if (args == (list_node *) NULL) {
+int get_process_info(word_list * args) {
+    if (args == (word_list *) NULL) {
         get_process_info_internal(getpid());
     } else {
-        for (list_node * curr = args; curr != NULL; curr = curr->next) {
+        for (word_list * curr = args; curr != NULL; curr = curr->_next) {
             char * endptr;
             errno = 0;
-            long pid = strtol(curr->word->text, &endptr, 10);
+            long pid = strtol(curr->_word->_text, &endptr, 10);
             if ((errno == ERANGE && (pid == LONG_MAX || pid == LONG_MIN))
                 || (errno != 0 && pid == 0)) {
                 perror("pinfo");
                 return -1;
             }
 
-            if (endptr == curr->word->text) {
+            if (endptr == curr->_word->_text) {
                 fprintf(stderr, "No valid digits were found\n");
                 return -1;
             }

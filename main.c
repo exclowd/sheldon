@@ -2,7 +2,7 @@
 #include "input.h"
 #include "command.h"
 #include "utils.h"
-#include "exec.h"
+//#include "exec.h"
 
 
 void display_prompt(void) {
@@ -14,7 +14,7 @@ void display_prompt(void) {
     buf[99] = '\0';
 
     printf("\e[1m%s\e[0m@%s ", buf, machine.nodename);
-    // good name
+    // good _name
 
     int l = (int) strlen(home);
     if (l > 1 && strncmp(home, pwd, l) == 0 && (!pwd[l] || pwd[l] == '/')) {
@@ -36,30 +36,31 @@ int main() {
     pwd = (char *) malloc(PATH_MAX);
     getcwd(pwd, PATH_MAX);
 
-    if (!init_bg_proc_q()) {
-        free(home);
-        free(pwd);
-        exit(1);
-    }
+//    if (!init_bg_proc_q()) {
+//        free(home);
+//        free(pwd);
+//
+//        exit(1);
+//    }
 
     while (1) {
         init_terminal();
         display_prompt();
         inp = read_input();
         int len = split_into_commands(&input_argv, inp);
-        simple_command *command;
+        compound_command *command;
 
         for (int i = 0; i < len; i++) {
-            command = load_command(input_argv[i]);
+            command = Parser(input_argv[i]);
             if (command != NULL) {
                 current_command = command;
-                execute_command(command);
-                free_command(command);
+//                execute_command(command);
+//                free_command(command);
             }
-            current_command = (simple_command *) NULL;
+            current_command = (compound_command *) NULL;
         }
 
-        poll_process();
+//        poll_process();
         free(inp);
         free(input_argv);
     }

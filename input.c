@@ -10,7 +10,7 @@
 
 enum input_state {
   INIT,
-  WORD,
+  SIMPLE_WORD,
   SINGLE_QUOTE,
   DOUBLE_QUOTE,
   SPACE
@@ -86,7 +86,7 @@ char *read_input() {
         } else if (c == '~') {
             if (!IS_QUOTE(state)) {
                 expand_tilda_to_home();
-                state = WORD;
+                state = SIMPLE_WORD;
                 continue;
             } else {
                 input_string[input_size] = c;
@@ -94,7 +94,7 @@ char *read_input() {
         } else {
             input_string[input_size] = c;
             if (!IS_QUOTE(state)) {
-                state = WORD;
+                state = SIMPLE_WORD;
             }
         }
         input_size++;

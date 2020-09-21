@@ -9,41 +9,50 @@
 #include <string.h>
 
 typedef struct NODE {
-    char * text;
-    int flag;
-} node;
+  char *_text;
+  int _flag;
+} word;
 
 typedef struct LINK_LIST_NODE {
-    struct LINK_LIST_NODE * next;
-    node* word;
-} list_node;
+  struct LINK_LIST_NODE *_next;
+  word *_word;
+} word_list;
 
 // Yay malloc went away
 typedef struct SIMPLE_COMMAND {
-    int flag; // is bg or fg
-
-    node * name;
-
-    list_node * args;
-
+  word *_name;
+  word_list *_args;
 } simple_command;
 
-simple_command * load_command(char * line);
+typedef struct LINK_LIST_SIMPLE_COMMAND {
+  simple_command *_command;
+  struct LINK_LIST_SIMPLE_COMMAND *_next;
+} simple_command_list;
 
-extern simple_command * current_command;
+typedef struct COMMAND {
+  char *_outFile;
+  char *_inputFile;
+  int _append_input;
+  simple_command_list *_simple_commands;
+  int _background;
+} compound_command;
 
-void free_command(simple_command * command);
+compound_command *Parser(char *line);
 
-char ** generate_argv (node * command,list_node *list, int starting_index);
+extern compound_command *current_command;
 
-extern list_node *current; // the current list node
+void free_command(simple_command *command);
 
-extern list_node *nonopt; // start the execution from here
+char **generate_argv(word *command, word_list *list, int starting_index);
 
-extern char * option_argument;
+extern word_list *current; // the current list word
 
-int getcommand_opt(list_node *list, char *opts);
+extern word_list *nonopt; // start the execution from here
 
-void reset_getcommand_opt(void);
+extern char *option_argument;
+
+int get_command_opt(word_list *list, char *opts);
+
+void reset_get_command_opt(void);
 
 #endif //SHELDON_COMMAND_H

@@ -16,6 +16,6 @@
 
 int execute_command(simple_command* command);
 
-int execute_system_command(node *command, list_node *arg, int flag);
+int execute_system_command(word *command, word_list *arg, int flag);
 
 #endif //SHELDON_EXEC_H

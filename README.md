@@ -26,9 +26,9 @@ The following functions are implemented
 * main.c : main loop of the shell.
 * input_string.c : reads input_string from stdin.
 * parse.c : parses the input_string and tokenizes into commands.
-* command.c : Takes a command and breaks it into command name, args etc. 
-Loads the command into command list.
-* exec.c : executes the command by calling the respective functions.
+* _command.c : Takes a _command and breaks it into _command _name, _args etc. 
+Loads the _command into _command list.
+* exec.c : executes the _command by calling the respective functions.
 * builtins.h : module implementation of all the builtins
 * utils.c : general utilities and macros to use everywhere
 * cd.c : handles cd and pwd builtins

@@ -8,6 +8,6 @@
 #include "../command.h"
 #include "../utils.h"
 
-int echo(list_node* args);
+int echo(word_list* args);
 
 #endif //SHELDON_ECHO_H

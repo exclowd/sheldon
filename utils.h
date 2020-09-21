@@ -16,6 +16,8 @@
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
 
+#define eprintf(...) fprintf(stderr,__VA_ARGS__),fflush(stderr)
+
 extern char * home;
 
 extern char * pwd;

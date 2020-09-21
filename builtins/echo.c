@@ -4,16 +4,16 @@
 
 #include "echo.h"
 
-int echo(list_node* args) {
+int echo(word_list* args) {
     while (args != NULL) {
-        if (args->word->text != NULL) {
-            if (args->word->flag == 1) {
-                printf("%s", args->word->text);
+        if (args->_word->_text != NULL) {
+            if (args->_word->_flag == 1) {
+                printf("%s", args->_word->_text);
             } else {
-                printf("%s ", args->word->text);
+                printf("%s ", args->_word->_text);
             }
         }
-        args = args->next;
+        args = args->_next;
     }
     printf("\n");
 }

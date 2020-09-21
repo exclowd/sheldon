@@ -11,11 +11,21 @@
 #include <ctype.h>
 #include <unistd.h>
 
+enum token_type {
+  SYMBOL,
+  STRING
+};
+
+struct token {
+    enum token_type _type;
+    char * _text;
+};
+
 void display_prompt(void);
 
 int split_into_commands(char ***argv, char *input);
 
-char *get_next_word(char *line);
+struct token * get_next_token(char *line);
 
 extern int is_quoted;
 

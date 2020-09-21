@@ -15,6 +15,6 @@
 #include <time.h>
 #include "dirent.h"
 
-int list_files_internal(list_node * args);
+int list_files_internal(word_list * args);
 
 #endif //SHELDON_LS_H

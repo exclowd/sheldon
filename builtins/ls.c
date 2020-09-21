@@ -54,7 +54,7 @@ static void attach(char *pathname, char *dirname, const char *name) {
 static int width = 0;
 
 static void print_format_short(file_info *file) {
-    // Decide to go to the next line if current line won't accommodate
+    // Decide to go to the _next line if current line won't accommodate
     if (curr_line_width != 0 && curr_line_width + width > terminal.ws_col) {
         printf("\n");
         curr_line_width = 0;
@@ -321,21 +321,21 @@ static int is_dir(char *dir) {
     return S_ISDIR(dir_stat.st_mode);
 }
 
-int list_files_internal(list_node *args) {
+int list_files_internal(word_list *args) {
     if (args == NULL) {
         enumerate_files_in_dir(".", 0, 0);
         return 0;
     }
     int all = 0, ll = 0;
     char c;
-    reset_getcommand_opt();
-    while ((c = (char) getcommand_opt(args, "la")) != -1) {
+    reset_get_command_opt();
+    while ((c = (char) get_command_opt(args, "la")) != -1) {
         switch (c) {
             case 'l':ll = 1;
                 break;
             case 'a':all = 1;
                 break;
-            case '?':fprintf(stderr, "ls: Invalid argument %s: format ls -[a, l]\n", nonopt->word->text);
+            case '?':fprintf(stderr, "ls: Invalid argument %s: format ls -[a, l]\n", nonopt->_word->_text);
                 return -1;
             default:continue;
         }
@@ -344,19 +344,19 @@ int list_files_internal(list_node *args) {
         enumerate_files_in_dir(".", all, ll);
     } else {
         int cnt = 0;
-        for (list_node *curr = nonopt; curr != NULL; curr = curr->next) {
-            if (*(curr->word->text) != '-') {
+        for (word_list *curr = nonopt; curr != NULL; curr = curr->_next) {
+            if (*(curr->_word->_text) != '-') {
                 cnt++;
             }
         }
-        for (list_node *curr = nonopt; curr != NULL; curr = curr->next) {
-            if (*(curr->word->text) != '-') {
-                if (cnt > 1) printf("%s:\n", curr->word->text);
-                if (is_dir(curr->word->text)) {
-                    if (enumerate_files_in_dir(curr->word->text, all, ll) == -1) {
+        for (word_list *curr = nonopt; curr != NULL; curr = curr->_next) {
+            if (*(curr->_word->_text) != '-') {
+                if (cnt > 1) printf("%s:\n", curr->_word->_text);
+                if (is_dir(curr->_word->_text)) {
+                    if (enumerate_files_in_dir(curr->_word->_text, all, ll) == -1) {
                         return -1;
                     }
-                } else if (list_single_file(curr->word->text, all, ll) == -1) {
+                } else if (list_single_file(curr->_word->_text, all, ll) == -1) {
                     return -1;
                 }
                 if (cnt > 1) printf("\n");

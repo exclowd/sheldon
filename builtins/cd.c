@@ -4,15 +4,15 @@
 
 #include "cd.h"
 
-int change_directory(list_node * dir) {
+int change_directory(word_list * dir) {
     if (dir == NULL) {
         chdir(home);
         strcpy(pwd, home);
-    } else if (dir->next) {
+    } else if (dir->_next) {
         fprintf(stdout, "cd: too many arguments\n");
         return -1;
     } else {
-        char * directory = dir->word->text;
+        char * directory = dir->_word->_text;
         if (chdir(directory) != 0) {
             perror("cd");
             return -1;
@@ -22,7 +22,7 @@ int change_directory(list_node * dir) {
     return 0;
 }
 
-int print_current_working_directory(list_node * dir) {
+int print_current_working_directory(word_list * dir) {
     if (dir == NULL) {
         printf("%s\n", pwd);
     } else {

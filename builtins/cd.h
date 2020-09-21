@@ -10,8 +10,8 @@
 #include <unistd.h>
 #include <linux/limits.h>
 
-int change_directory(list_node * dir);
+int change_directory(word_list * dir);
 
-int print_current_working_directory(list_node * dir);
+int print_current_working_directory(word_list * dir);
 
 #endif //SHELDON_CD_H

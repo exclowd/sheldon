@@ -12,11 +12,11 @@
 #include <limits.h>
 
 typedef struct PROCESS_NODE {
-    int pid;
-    int id;
+    int _pid;
+    int _id;
     int status; // 0 for bg 1 for fg -1 exited
-    char * command;
-    struct PROCESS_NODE * next;
+    char * _command;
+    struct PROCESS_NODE * _node;
 } simple_process;
 
 typedef struct PROCESS_LIST {
@@ -35,6 +35,6 @@ void poll_process(void);
 
 void kill_all_bgproc ();
 
-int get_process_info(list_node * args);
+int get_process_info(word_list * args);
 
 #endif //SHELDON_PROCESS_H
