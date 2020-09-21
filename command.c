@@ -184,6 +184,7 @@ compound_command *Parser(char *line) {
 		}
 	}
 
+	free_token();
 	return curr_comp;
 }
 
@@ -198,9 +199,26 @@ void free_command(simple_command *command) {
 		free(tmp);
 	}
 
+	free(command->_name->_text);
 	free(command->_name);
 	free(command);
 }
+
+void free_compound_command(compound_command * cc) {
+	simple_command_list * head = cc->_simple_commands;
+	simple_command_list * tmp;
+
+	while (head != NULL) {
+		tmp = head;
+		head = head->_next;
+		free_command(tmp->_command);
+		free(tmp);
+	}
+	free(cc->_outFile);
+	free(cc->_inputFile);
+	free(cc);
+}
+
 
 int list_length(word_list *list) {
 	register int i;

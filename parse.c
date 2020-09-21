@@ -36,7 +36,7 @@ enum parser_state {
 static int curr_index = 0;
 static int length = 0;
 static char *input;
-int is_quoted;
+int is_quoted = 0;
 static struct token *curr_token = (struct token *) NULL;
 
 void load_token(struct token *tok, char *string, enum token_type state) {
@@ -45,6 +45,12 @@ void load_token(struct token *tok, char *string, enum token_type state) {
 	strncpy(tok->_text, string, len);
 	tok->_text[len] = '\0';
 	tok->_type = state;
+}
+
+void free_token(void) {
+	if (curr_token != NULL) {
+		free(curr_token);
+	}
 }
 
 struct token *get_next_token(char *line) {
@@ -56,10 +62,10 @@ struct token *get_next_token(char *line) {
 		input = line;
 		length = (int) strlen(input) + 1;
 	} else {
-		if (curr_token->_text != NULL) {
-			free(curr_token->_text);
-		}
 		if (curr_token != NULL) {
+			if (curr_token->_text != NULL) {
+				free(curr_token->_text);
+			}
 			free(curr_token);
 		}
 	}

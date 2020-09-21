@@ -36,12 +36,12 @@ int main() {
     pwd = (char *) malloc(PATH_MAX);
     getcwd(pwd, PATH_MAX);
 
-//    if (!init_bg_proc_q()) {
-//        free(home);
-//        free(pwd);
-//
-//        exit(1);
-//    }
+    if (!init_bg_proc_q()) {
+        free(home);
+        free(pwd);
+
+        exit(1);
+    }
 
     while (1) {
         init_terminal();
@@ -55,12 +55,12 @@ int main() {
             if (command != NULL) {
                 current_command = command;
                 execute_compound_command(command);
-//                free_command(command);
+                free_compound_command(command);
             }
             current_command = (compound_command *) NULL;
         }
 
-//        poll_process();
+        poll_process();
         free(inp);
         free(input_argv);
     }

@@ -27,6 +27,8 @@ int split_into_commands(char ***argv, char *input);
 
 struct token * get_next_token(char *line);
 
+void free_token(void);
+
 extern int is_quoted;
 
 #endif //SHELDON_PARSE_H

@@ -20,7 +20,7 @@ void exit_successfully() {
     free(pwd);
     free(inp);
     free(input_argv);
-    free_command(current_command);
+    free_compound_command(current_command);
     exit(0);
 }
 
@@ -37,7 +37,7 @@ void exit_abruptly(int return_code) {
     free(pwd);
     free(inp);
     free(input_argv);
-    free_command(current_command);
+    free_compound_command(current_command);
     exit(return_code);
 }
 

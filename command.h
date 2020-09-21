@@ -42,6 +42,8 @@ extern compound_command *current_command;
 
 void free_command(simple_command *command);
 
+void free_compound_command(compound_command *command);
+
 char **generate_argv(word *command, word_list *list, int starting_index);
 
 extern word_list *current; // the current list word
