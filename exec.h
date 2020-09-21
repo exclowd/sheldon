@@ -10,12 +10,10 @@
 #include "utils.h"
 #include "process.h"
 
-#include <sys/types.h>
-#include <sys/wait.h>
 
-
-int execute_command(simple_command* command);
+int execute_simple_command(simple_command *cc, int flag);
 
 int execute_system_command(word *command, word_list *arg, int flag);
 
+int execute_compound_command(compound_command * cc);
 #endif //SHELDON_EXEC_H

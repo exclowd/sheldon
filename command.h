@@ -10,7 +10,6 @@
 
 typedef struct NODE {
   char *_text;
-  int _flag;
 } word;
 
 typedef struct LINK_LIST_NODE {

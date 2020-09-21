@@ -42,6 +42,7 @@ compound_command *Parser(char *line) {
 		simple_command_list *command_node = (simple_command_list *) malloc(sizeof(simple_command_list));
 		simple_command *curr = (simple_command *) malloc(sizeof(simple_command)); // current simple command
 		command_node->_command = curr;
+		command_node->_next = NULL;
 
 		curr->_name = (word *) malloc(sizeof(word));
 		curr->_args = NULL;

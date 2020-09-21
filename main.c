@@ -2,7 +2,7 @@
 #include "input.h"
 #include "command.h"
 #include "utils.h"
-//#include "exec.h"
+#include "exec.h"
 
 
 void display_prompt(void) {
@@ -54,7 +54,7 @@ int main() {
             command = Parser(input_argv[i]);
             if (command != NULL) {
                 current_command = command;
-//                execute_command(command);
+                execute_compound_command(command);
 //                free_command(command);
             }
             current_command = (compound_command *) NULL;
