@@ -4,7 +4,7 @@
 
 #include "utils.h"
 #include "command.h"
-#include "process.h"
+#include "jobs.h"
 
 char *home;
 
@@ -15,7 +15,7 @@ char *inp;
 char **input_argv;
 
 void exit_successfully() {
-    kill_all_bgproc();
+	kill_all_bg_jobs();
     free(home);
     free(pwd);
     free(inp);
@@ -25,14 +25,14 @@ void exit_successfully() {
 }
 
 void exit_safely(int return_code) {
-    kill_all_bgproc();
+	kill_all_bg_jobs();
     free(home);
     free(pwd);
     exit(return_code);
 };
 
 void exit_abruptly(int return_code) {
-    kill_all_bgproc();
+	kill_all_bg_jobs();
     free(home);
     free(pwd);
     free(inp);

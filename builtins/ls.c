@@ -56,7 +56,7 @@ static int width = 0;
 static void print_format_short(file_info *file) {
     // Decide to go to the _next line if current line won't accommodate
     if (curr_line_width != 0 && curr_line_width + width > terminal.ws_col) {
-        printf("\n");
+        fprintf(stdout, "\n");
         curr_line_width = 0;
     }
 
@@ -82,15 +82,15 @@ static void print_format_short(file_info *file) {
     }
 
     if (file->is_quoted) {
-        printf("\e%s'%s'\e[0m%-*s", color, file->name, width - (int) strlen(file->name) - 2, "");
+        fprintf(stdout, "\e%s'%s'\e[0m%-*s", color, file->name, width - (int) strlen(file->name) - 2, "");
     } else {
-        printf("\e%s%-*s\e[0m", color, width, file->name);
+        fprintf(stdout, "\e%s%-*s\e[0m", color, width, file->name);
     }
 
     curr_line_width += width;
 
     if (curr_line_width > terminal.ws_col) {
-        printf("\n");
+        fprintf(stdout, "\n");
         curr_line_width = 0;
     }
 }
@@ -108,7 +108,7 @@ static void print_format_long(file_info *file) {
     struct stat buf;
 
     if (lstat(pathname, &buf) == 0) {
-        printf("%c", filetype_letter[file->filetype]);
+        fprintf(stdout, "%c", filetype_letter[file->filetype]);
 
         char permissions[10];
         memset(permissions, 0, sizeof(permissions));
@@ -125,7 +125,7 @@ static void print_format_long(file_info *file) {
             permissions[i] = !!(file->mode & masks[i]) ? c[i % 3] : '-';
         }
 
-        printf("%s ", permissions);
+        fprintf(stdout, "%s ", permissions);
 
         char *time = (char *) malloc(256);
 
@@ -138,7 +138,7 @@ static void print_format_long(file_info *file) {
         int len_username = (int) strlen(username);
         int len_groupname = (int) strlen(username);
 
-        printf("%3ld %-*s %-*s %8ld %s ",
+        fprintf(stdout, "%3ld %-*s %-*s %8ld %s ",
                buf.st_nlink, len_username + 1, username,
                len_groupname + 1, groupname, buf.st_size, time + 4);
 
@@ -166,9 +166,9 @@ static void print_format_long(file_info *file) {
         }
 
         if (file->is_quoted) {
-            printf("\e%s'%s'\e[0m%-*s", color, file->name, width - (int) strlen(file->name) - 2, "");
+            fprintf(stdout,"\e%s'%s'\e[0m%-*s", color, file->name, width - (int) strlen(file->name) - 2, "");
         } else {
-            printf("\e%s%-*s\e[0m", color, width, file->name);
+            fprintf(stdout, "\e%s%-*s\e[0m", color, width, file->name);
         }
     } else {
         perror("ls");
@@ -176,7 +176,7 @@ static void print_format_long(file_info *file) {
         return;
     }
 
-    printf("\n");
+    fprintf(stdout,"\n");
 
     free(pathname);
 }
@@ -280,7 +280,7 @@ static int enumerate_files_in_dir(char *dir, int all, int ll) {
     }
 
     if (ll) {
-        printf("total %ldK\n", total / 2);
+        fprintf(stdout, "total %ldK\n", total / 2);
     }
 
     for (int i = 0; i < n; i++) {
@@ -292,7 +292,7 @@ static int enumerate_files_in_dir(char *dir, int all, int ll) {
 
     free(namelist);
 
-    printf("\n");
+    fprintf(stdout, "\n");
     return 0;
 }
 
@@ -310,7 +310,7 @@ static int list_single_file(char *file, int all, int ll) {
     format_functions[ll](&files_under[0]);
 
     free(files_under);
-    printf("\n");
+    fprintf(stdout, "\n");
     return 0;
 }
 

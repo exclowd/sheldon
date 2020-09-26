@@ -8,6 +8,7 @@
 #include "builtins/cd.h"
 #include "builtins/echo.h"
 #include "builtins/ls.h"
-#include "utils.h"
+#include "builtins/pinfo.h"
+#include "builtins/env.h"
 
 #endif //SHELDON_BUILTINS_H

@@ -204,9 +204,9 @@ void free_command(simple_command *command) {
 	free(command);
 }
 
-void free_compound_command(compound_command * cc) {
-	simple_command_list * head = cc->_simple_commands;
-	simple_command_list * tmp;
+void free_compound_command(compound_command *cc) {
+	simple_command_list *head = cc->_simple_commands;
+	simple_command_list *tmp;
 
 	while (head != NULL) {
 		tmp = head;
@@ -219,7 +219,6 @@ void free_compound_command(compound_command * cc) {
 	free(cc);
 }
 
-
 int list_length(word_list *list) {
 	register int i;
 	for (i = 0; list; list = list->_next, i++);
@@ -227,6 +226,29 @@ int list_length(word_list *list) {
 }
 
 // always remember to free this pointer
+
+/*
+ * getting alternate representations of the command
+ */
+
+char *get_complete_command(word *command, word_list *args) {
+	char *str;
+	size_t len = strlen(command->_text);
+	for (word_list *curr = args; curr != NULL; curr = curr->_next) {
+		len += 1 + strlen(curr->_word->_text);
+	}
+	str = (char *) malloc(len + 1);
+	size_t pos = 0;
+	strncpy(str + pos, command->_text, strlen(command->_text));
+	pos += strlen(command->_text);
+	for (word_list *curr = args; curr != NULL; curr = curr->_next) {
+		str[pos++] = ' ';
+		strncpy(str + pos, curr->_word->_text, strlen(curr->_word->_text));
+		pos += strlen(curr->_word->_text);
+	}
+	str[len] = '\0';
+	return str;
+}
 
 char **generate_argv(word *command, word_list *list, int starting_index) {
 	int count;
@@ -247,6 +269,14 @@ char **generate_argv(word *command, word_list *list, int starting_index) {
 
 	return (array);
 }
+
+
+/*
+ *
+ *	utilities for  getting command options
+ *
+ */
+
 
 static int idx = 1;
 

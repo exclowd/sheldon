@@ -49,8 +49,10 @@ void load_token(struct token *tok, char *string, enum token_type state) {
 
 void free_token(void) {
 	if (curr_token != NULL) {
+		if (curr_token->_text != NULL) {
+			free(curr_token->_text);
+		}
 		free(curr_token);
-		free(curr_token->_text);
 	}
 }
 

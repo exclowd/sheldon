@@ -14,7 +14,10 @@ const char *builtins[] = {
 	"echo",
 	"pinfo",
 	"ls",
-	"exit"
+	"exit",
+	"setenv",
+	"unsetenv",
+	"getenv"
 };
 
 int (*builtin_functions[])(word_list *arg) = {
@@ -23,7 +26,10 @@ int (*builtin_functions[])(word_list *arg) = {
 	echo,
 	get_process_info,
 	list_files_internal,
-	(int (*)(word_list *)) exit_successfully
+	(int (*)(word_list *)) exit_successfully,
+	set_env,
+	unset_env,
+	getenv_internal
 };
 
 static int last_child = 0;
@@ -43,17 +49,17 @@ int execute_system_command(word *command, word_list *arg, int flag) {
 			if (flag == 1) { // if background
 				setpgid(0, 0);
 			}
+			errno = 0;
 			execvp(command->_text, argv);
-			perror("sheldon : _command");
+			perror("sheldon : command");
 			free(argv);
 			exit_abruptly(1);
 	}
 
 	if (pid_1 > 0) {
 		if (flag == 1) {
-			int res = add_process(pid_1, command->_text);
-			if (res) {
-				printf("\n[%d] %s %d\n", number_of_bg_processes, command->_text, pid_1);
+			if (add_job(pid_1, get_complete_command(command, arg))) {
+				return 0;
 			} else {
 				return -1;
 			}
