@@ -6,31 +6,31 @@
 #include <signal.h>
 #include <wait.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include "utils.h"
 
 
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
 
-job_list *jobList;
+job_list *jobList = NULL;
 
 int last_job_id = 0;
 
-job_internal *createNode(int job_id, pid_t pid, char *command) {
-	job_internal *newNode = malloc(sizeof(job_internal));
-	if (!newNode) {
+job_internal *create_node(int job_id, pid_t pid, char *command) {
+	job_internal *new_node = malloc(sizeof(job_internal));
+	if (!new_node) {
 		return NULL;
 	}
-	newNode->_jobid = job_id;
-	newNode->_pgid = pid;
-	newNode->_status = 0;
-	newNode->_command = command;
-	newNode->_next = NULL;
-	return newNode;
+	new_node->_jobid = job_id;
+	new_node->_pgid = pid;
+	new_node->_status = 0;
+	new_node->_command = command;
+	new_node->_next = NULL;
+	return new_node;
 }
 
-job_list *makelist() {
+job_list *make_list() {
 	job_list *list = malloc(sizeof(job_list));
 	if (!list) {
 		return NULL;
@@ -39,7 +39,7 @@ job_list *makelist() {
 	return list;
 }
 
-void deletelist(job_list *job) {
+void delete_list(job_list *job) {
 	free(job);
 }
 
@@ -71,14 +71,14 @@ job_internal *add(int pid, char *command, job_list *list) {
 	}
 	last_job_id = MAX(job_id, last_job_id);
 	if (list->head == NULL) {
-		list->head = createNode(job_id, pid, command);
+		list->head = create_node(job_id, pid, command);
 		return list->head;
 	} else {
 		curr = list->head;
 		while (curr->_next != NULL) {
 			curr = curr->_next;
 		}
-		curr->_next = createNode(job_id, pid, command);
+		curr->_next = create_node(job_id, pid, command);
 		return curr->_next;
 	}
 }
@@ -114,7 +114,7 @@ job_internal *find(int pid, job_list *list) {
 
 void kill_all_bg_jobs() {
 	job_internal *curr = jobList->head;
-	job_internal *next = curr;
+	job_internal *next;
 	while (curr != NULL) {
 		free(curr->_command);
 		kill(-(curr->_pgid), SIGTERM);
@@ -125,16 +125,16 @@ void kill_all_bg_jobs() {
 }
 
 int init_job_queue() {
-	jobList = makelist();
+	jobList = make_list();
 	return (jobList != NULL);
 }
 
 int add_job(int pgid, char *command) {
-	job_internal *newJob = add(pgid, command, jobList);
-	if (newJob != NULL) {
-		printf("\n[%d] %s %d\n", newJob->_jobid, newJob->_command, newJob->_pgid);
+	job_internal *new_job = add(pgid, command, jobList);
+	if (new_job != NULL) {
+		printf("\n[%d] %s %d\n", new_job->_jobid, new_job->_command, new_job->_pgid);
 	}
-	return (newJob != NULL);
+	return (new_job != NULL);
 }
 
 void poll_jobs(void) {
