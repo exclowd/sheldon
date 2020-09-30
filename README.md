@@ -12,15 +12,15 @@ The following functions are implemented
 * Runs all the commands
 
 ### Assumptions:
-* No Assumptions in input_string size.
+* No assumptions in input_string size.
 * Multiline echo
 * Username is truncated to 100 digits
 * ~ expansion is supported in echo also, use quotes for character '~'
 
 ###  TODO
-*[ ]  Implement History through GNU readline
-*[ ]  Add support for '()' in the parser
-*[ ]  Convert the process list into a hash map
+- [ ]  Implement History through GNU readline
+- [ ]  Add support for '()' in the parser
+- [ ]  Convert the process list into a hash map
 
 ##### File Structure
 * main.c : main loop of the shell.
