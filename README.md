@@ -1,4 +1,4 @@
-#SHELDON
+SHELDON
 
 It's a basic shell. 
 The following functions are implemented
@@ -18,9 +18,9 @@ The following functions are implemented
 * ~ expansion is supported in echo also, use quotes for character '~'
 
 ###  TODO
-*[ ]  Implement History through GNU readline
-*[ ]  Add support for '()' in the parser
-*[ ]  Convert the process list into a hash map
+- [ ]  Implement History through GNU readline
+- [ ]  Add support for '()' in the parser
+- [ ]  Convert the process list into a hash map
 
 ##### File Structure
 * main.c : main loop of the shell.
