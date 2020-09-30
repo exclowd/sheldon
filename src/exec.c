@@ -103,8 +103,8 @@ int execute_simple_command(simple_command *cc, int flag) {
 }
 
 int execute_compound_command(compound_command *cc) {
-	int saved_stdin = dup(0);
-	int saved_stdout = dup(1);
+	int saved_stdin = dup(STDIN_FILENO);
+	int saved_stdout = dup(STDOUT_FILENO);
 
 	int input_fd;
 	if (cc->_inputFile != NULL) {
@@ -116,7 +116,7 @@ int execute_compound_command(compound_command *cc) {
 	int ret = 0;
 	int output_fd;
 	for (simple_command_list *curr = cc->_simple_commands; curr != NULL; curr = curr->_next) {
-		dup2(input_fd, 0); // set 0 to correspond to input fd
+		dup2(input_fd, STDIN_FILENO); // set 0 to correspond to input fd
 		close(input_fd); // corresponds to no file now
 
 		if (curr->_next == NULL) {
@@ -152,8 +152,8 @@ int execute_compound_command(compound_command *cc) {
 		}
 	}
 
-	dup2(saved_stdin, 0); // set 0 to the actual stdin
-	dup2(saved_stdout, 1); // set 1 to the actual stdout
+	dup2(saved_stdin, STDIN_FILENO); // set 0 to the actual stdin
+	dup2(saved_stdout, STDOUT_FILENO); // set 1 to the actual stdout
 
 	close(saved_stdin);
 	close(saved_stdout);

@@ -5,7 +5,7 @@
 #ifndef SHELDON_BUILTINS_PINFO_H_
 #define SHELDON_BUILTINS_PINFO_H_
 
-#include "../command.h"
+#include "../src/command.h"
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>

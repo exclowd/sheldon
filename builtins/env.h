@@ -4,8 +4,8 @@
 
 #ifndef SHELDON_BUILTINS_ENV_H_
 #define SHELDON_BUILTINS_ENV_H_
-#include "../command.h"
-#include "../utils.h"
+#include "../src/command.h"
+#include "../src/utils.h"
 
 int set_env(word_list * arg);
 int unset_env(word_list * arg);

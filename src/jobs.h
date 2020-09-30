@@ -11,7 +11,7 @@
 #include "utils.h"
 
 typedef struct PROCESS_NODE {
-    int _pid;
+    int _pgid;
     int _jobid;
     int _status; // 0 for bg 1 for fg -1 exited
     char * _command;

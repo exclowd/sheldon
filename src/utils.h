@@ -11,16 +11,24 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <linux/limits.h>
-#include <ctype.h>
 #include <errno.h>
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
+#include <termios.h>
 
 #define eprintf(...) fprintf(stderr,__VA_ARGS__),fflush(stderr)
 
-extern char * home;
+extern pid_t shell_pgid;
 
-extern char * pwd;
+extern struct termios shell_tmodes;
+
+extern int shell_terminal;
+
+extern int shell_is_interactive;
+
+extern char *home;
+
+extern char *pwd;
 
 extern char *inp;
 

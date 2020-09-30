@@ -5,8 +5,8 @@
 #ifndef SHELDON_LS_H
 #define SHELDON_LS_H
 
-#include "../utils.h"
-#include "../command.h"
+#include "../src/utils.h"
+#include "../src/command.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>

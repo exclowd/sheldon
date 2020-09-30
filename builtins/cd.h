@@ -5,8 +5,8 @@
 #ifndef SHELDON_CD_H
 #define SHELDON_CD_H
 
-#include "../command.h"
-#include "../utils.h"
+#include "../src/command.h"
+#include "../src/utils.h"
 #include <unistd.h>
 #include <linux/limits.h>
 

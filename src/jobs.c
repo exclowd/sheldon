@@ -17,7 +17,7 @@ job_internal *createNode(int job_id, pid_t pid, char *command) {
         return NULL;
     }
     newNode->_jobid = job_id;
-	newNode->_pid = pid;
+	newNode->_pgid = pid;
     newNode->_status = 0;
     newNode->_command = command;
     newNode->_next = NULL;
@@ -33,12 +33,16 @@ job_list *makelist() {
     return list;
 }
 
+void deletelist(job_list * job) {
+	free(job);
+}
+
 void display(job_list *list) {
     if (list->head == NULL) {
         return;
     }
     for (job_internal *curr = list->head; curr != NULL; curr = curr->_next) {
-        printf("%d\n", curr->_pid);
+        printf("%d\n", curr->_pgid);
     }
 }
 
@@ -77,7 +81,7 @@ void delete(int pid, job_list *list) {
     job_internal *curr = list->head;
     job_internal *previous = curr;
     while (curr != NULL) {
-        if (curr->_pid == pid) {
+        if (curr->_pgid == pid) {
             previous->_next = curr->_next;
             if (curr == list->head) {
                 list->head = curr->_next;
@@ -94,7 +98,7 @@ void delete(int pid, job_list *list) {
 job_internal *find(int pid, job_list *list) {
     job_internal *curr = list->head;
     while (curr != NULL) {
-        if (curr->_pid == pid) {
+        if (curr->_pgid == pid) {
             return curr;
         }
         curr = curr->_next;
@@ -107,12 +111,11 @@ void kill_all_bg_jobs() {
     job_internal *next = curr;
     while (curr != NULL) {
         free(curr->_command);
-        kill(curr->_pid, SIGTERM);
+        kill(-(curr->_pgid), SIGTERM);
         next = curr->_next;
         free(curr);
         curr = next;
     }
-    free(jobList);
 }
 
 int init_job_queue() {
@@ -123,7 +126,7 @@ int init_job_queue() {
 int add_job(int pgid, char *command) {
     job_internal *newJob = add(pgid, command, jobList);
 	if (newJob != NULL) {
-		printf("\n[%d] %s %d\n", newJob->_jobid, newJob->_command, newJob->_pid);
+		printf("\n[%d] %s %d\n", newJob->_jobid, newJob->_command, newJob->_pgid);
 	}
     return (newJob != NULL);
 }
@@ -141,7 +144,7 @@ void poll_jobs(void) {
 			job = find(pgid, jobList);
             if (job != NULL) {
                 fprintf(stderr, "Process [%d] %s with pid [%d] exited with code: %d\n",
-						job->_jobid, job->_command, job->_pid, status);
+						job->_jobid, job->_command, job->_pgid, status);
                 delete(pgid, jobList);
             }
         } else {

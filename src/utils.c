@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "command.h"
 #include "jobs.h"
+#include <termios.h>
 
 char *home;
 
@@ -13,6 +14,14 @@ char *pwd;
 char *inp;
 
 char **input_argv;
+
+pid_t shell_pgid;
+
+struct termios shell_tmodes;
+
+int shell_terminal;
+
+int shell_is_interactive;
 
 void exit_successfully() {
 	kill_all_bg_jobs();
