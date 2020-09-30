@@ -2,9 +2,12 @@
 // Created by kannav on 9/1/20.
 //
 
-#include "command.h"
+#include <stdlib.h>
+#include <string.h>
 #include "parse.h"
 #include "utils.h"
+#include "command.h"
+
 
 compound_command *current_command;
 
@@ -100,10 +103,10 @@ compound_command *Parser(char *line) {
 				buf->_next = NULL;
 
 				if (curr->_args == NULL) {
-					// connect _args to buf
+					/*connect _args to buf*/
 					curr->_args = buf;
 				} else {
-					// connect head to buf
+					/*connect head to buf*/
 					args->_next = buf;
 				}
 
@@ -225,11 +228,7 @@ int list_length(word_list *list) {
 	return i;
 }
 
-// always remember to free this pointer
-
-/*
- * getting alternate representations of the command
- */
+/* getting alternate representations of the command*/
 
 char *get_complete_command(word *command, word_list *args) {
 	char *str;
@@ -270,13 +269,7 @@ char **generate_argv(word *command, word_list *list, int starting_index) {
 	return (array);
 }
 
-
-/*
- *
- *	utilities for  getting command options
- *
- */
-
+/* utilities for  getting command options */
 
 static int idx = 1;
 

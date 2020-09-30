@@ -4,6 +4,9 @@
 //
 
 #include "parse.h"
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 int split_into_commands(char ***argv, char *inp) {
 	char *token;
@@ -166,8 +169,7 @@ struct token *get_next_token(char *line) {
 							return curr_token;
 						}
 						continue;
-					case '\0':
-						load_token(curr_token, last_word, STRING);
+					case '\0': load_token(curr_token, last_word, STRING);
 						curr_index++;
 						if (strlen(curr_token->_text) > 0) {
 							return curr_token;

@@ -1,8 +1,26 @@
+
 #include "parse.h"
 #include "input.h"
 #include "command.h"
 #include "utils.h"
 #include "exec.h"
+#include "jobs.h"
+#include <stdlib.h>
+
+/*for getting the value of system variables*/
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <linux/limits.h>
+#include <signal.h>
+#include <sys/utsname.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+
+
+void init_terminal() {
+	ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal);
+}
 
 void display_prompt(void) {
 	static char tdir[PATH_MAX];

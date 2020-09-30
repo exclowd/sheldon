@@ -6,8 +6,8 @@
 #define SHELDON_ECHO_H
 
 #include "../src/command.h"
-#include "../src/utils.h"
 
-int echo(word_list* args);
+
+int echo(word_list *args);
 
 #endif //SHELDON_ECHO_H

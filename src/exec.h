@@ -6,9 +6,6 @@
 #define SHELDON_EXEC_H
 
 #include "command.h"
-#include "builtins.h"
-#include "utils.h"
-#include "jobs.h"
 
 
 int execute_simple_command(simple_command *cc, int flag);

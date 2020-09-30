@@ -5,6 +5,12 @@
 #include "input.h"
 #include "utils.h"
 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+/*known aliases*/
 #define IS_QUOTE(state) ((state) == SINGLE_QUOTE || (state) == DOUBLE_QUOTE)
 
 enum input_state {

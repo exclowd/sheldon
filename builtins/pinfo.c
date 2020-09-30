@@ -3,14 +3,21 @@
 //
 
 #include "pinfo.h"
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <stdio.h>
+#include <linux/limits.h>
+#include <limits.h>
 
 
 void get_process_info_internal(pid_t pid) {
-	char * proc = (char *) malloc(PATH_MAX);
-	char * exec = (char *) malloc(PATH_MAX);
+	char *proc = (char *) malloc(PATH_MAX);
+	char *exec = (char *) malloc(PATH_MAX);
 	memset(exec, 0, PATH_MAX);
-	sprintf(proc,"/proc/%d/stat",pid);
-	FILE * fp = fopen(proc, "r");
+	sprintf(proc, "/proc/%d/stat", pid);
+	FILE *fp = fopen(proc, "r");
 	if (fp == NULL) {
 		perror("pinfo");
 		free(proc);
@@ -22,9 +29,9 @@ void get_process_info_internal(pid_t pid) {
 
 	for (int i = 0; i < 23; i++) {
 		if (i == 2) {
-			fscanf(fp,"%1s", status);
+			fscanf(fp, "%1s", status);
 		} else if (i == 22) {
-			fscanf(fp,"%lu", &memory);
+			fscanf(fp, "%lu", &memory);
 		} else {
 			fscanf(fp, "%*s");
 		}

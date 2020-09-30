@@ -6,8 +6,6 @@
 #define SHELDON_INPUT_H
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 
 extern size_t input_size;
 

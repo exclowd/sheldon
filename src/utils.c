@@ -5,7 +5,9 @@
 #include "utils.h"
 #include "command.h"
 #include "jobs.h"
+#include <stdlib.h>
 #include <termios.h>
+
 
 char *home;
 
@@ -19,39 +21,35 @@ pid_t shell_pgid;
 
 struct termios shell_tmodes;
 
+struct winsize terminal;
+
 int shell_terminal;
 
 int shell_is_interactive;
 
 void exit_successfully() {
 	kill_all_bg_jobs();
-    free(home);
-    free(pwd);
-    free(inp);
-    free(input_argv);
-    free_compound_command(current_command);
-    exit(0);
+	free(home);
+	free(pwd);
+	free(inp);
+	free(input_argv);
+	free_compound_command(current_command);
+	exit(0);
 }
 
 void exit_safely(int return_code) {
 	kill_all_bg_jobs();
-    free(home);
-    free(pwd);
-    exit(return_code);
-};
+	free(home);
+	free(pwd);
+	exit(return_code);
+}
 
 void exit_abruptly(int return_code) {
 	kill_all_bg_jobs();
-    free(home);
-    free(pwd);
-    free(inp);
-    free(input_argv);
-    free_compound_command(current_command);
-    exit(return_code);
-}
-
-struct winsize terminal;
-
-void init_terminal() {
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal);
+	free(home);
+	free(pwd);
+	free(inp);
+	free(input_argv);
+	free_compound_command(current_command);
+	exit(return_code);
 }

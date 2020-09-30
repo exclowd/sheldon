@@ -4,9 +4,15 @@
 
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <fcntl.h>
+#include <string.h>
 #include "exec.h"
+#include "builtins.h"
+#include "utils.h"
+#include "jobs.h"
 
 const char *builtins[] = {
 	"cd",

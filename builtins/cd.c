@@ -3,13 +3,17 @@
 //
 
 #include "cd.h"
+#include "../src/utils.h"
+#include <string.h>
+#include <unistd.h>
+#include <linux/limits.h>
 
 int change_directory(word_list * dir) {
     if (dir == NULL) {
         chdir(home);
         strcpy(pwd, home);
     } else if (dir->_next) {
-        fprintf(stdout, "cd: too many arguments\n");
+        printf("cd: too many arguments\n");
         return -1;
     } else {
         char * directory = dir->_word->_text;
@@ -26,7 +30,7 @@ int print_current_working_directory(word_list * dir) {
     if (dir == NULL) {
         printf("%s\n", pwd);
     } else {
-        fprintf(stdout, "pwd : too many arguments\n");
+        printf("pwd : too many arguments\n");
         return -1;
     }
 }

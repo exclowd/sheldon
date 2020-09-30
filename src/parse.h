@@ -5,12 +5,6 @@
 #ifndef SHELDON_PARSE_H
 #define SHELDON_PARSE_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-
 enum token_type {
   SYMBOL,
   STRING

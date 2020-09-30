@@ -3,6 +3,10 @@
 //
 
 #include "echo.h"
+#include "../src/utils.h"
+#include <string.h>
+#include <ctype.h>
+
 
 int echo(word_list *args) {
 	while (args != NULL) {
@@ -24,4 +28,5 @@ int echo(word_list *args) {
 		args = args->_next;
 	}
 	printf("\n");
+	return 0;
 }

@@ -5,16 +5,10 @@
 #ifndef SHELDON_UTILS_H
 #define SHELDON_UTILS_H
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
-#include <ctype.h>
-#include <linux/limits.h>
-#include <errno.h>
-#include <sys/utsname.h>
+#include <sys/types.h>
 #include <sys/ioctl.h>
-#include <termios.h>
+
 
 #define eprintf(...) fprintf(stderr,__VA_ARGS__),fflush(stderr)
 
@@ -32,16 +26,14 @@ extern char *pwd;
 
 extern char *inp;
 
-extern char **input_argv;
-
 extern struct winsize terminal;
+
+extern char **input_argv;
 
 void exit_successfully(void);
 
 void exit_safely(int return_code);
 
 void exit_abruptly(int return_code);
-
-void init_terminal();
 
 #endif //SHELDON_UTILS_H

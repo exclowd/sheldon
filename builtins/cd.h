@@ -6,9 +6,6 @@
 #define SHELDON_CD_H
 
 #include "../src/command.h"
-#include "../src/utils.h"
-#include <unistd.h>
-#include <linux/limits.h>
 
 int change_directory(word_list * dir);
 
