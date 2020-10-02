@@ -21,6 +21,7 @@ The following functions are implemented
 * Multiline echo
 * Username is truncated to 100 digits
 * ~ expansion is supported in echo also, use quotes for character '~'
+* No no to pipe in background
 
 ###  TODO
 - [ ]  Implement History through GNU readline

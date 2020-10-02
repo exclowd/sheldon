@@ -251,8 +251,9 @@ void put_job_in_fg(job_internal *j, int cont) {
 
 	/* Send the job a continue signal, if necessary.  */
 	if (cont) {
-		if (kill(-j->_pgid, SIGCONT) < 0)
+		if (kill(-j->_pgid, SIGCONT) < 0) {
 			perror("kill (SIGCONT)");
+		}
 	}
 
 	int wstatus;
@@ -268,7 +269,15 @@ void put_job_in_fg(job_internal *j, int cont) {
 
 	if (WIFSTOPPED(wstatus)) {
 		printf("[%d] %d suspended %s\n", j->_jobid, j->_pgid, j->_command);
+	} else if (WIFEXITED(wstatus)) {
+		printf("[%d] %d ", j->_jobid, j->_pgid);
+		printf("done");
+		printf("\t %s\n", j->_command);
+		delete(j->_pgid, jobList);
+		fflush(stdout);
 	}
+
+	poll_for_exited_jobs(0);
 }
 
 void put_job_in_bg(pid_t pid, int cont) {
