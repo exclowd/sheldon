@@ -11,7 +11,7 @@
 
 compound_command *current_command;
 
-simple_command * current_simple_command;
+simple_command *current_simple_command;
 
 compound_command *parser(char *line) {
 	compound_command *curr_comp;
@@ -37,7 +37,7 @@ compound_command *parser(char *line) {
 		}
 		if (token == NULL) {
 			if (anticipate_command) {
-				eprintf("sheldon: syntax: command anticipated found nothing");
+				eprintf("sheldon: syntax: command anticipated found nothing\n");
 				return NULL;
 			} else {
 				break;
@@ -60,7 +60,7 @@ compound_command *parser(char *line) {
 		}
 
 		if (token->_text == NULL) {
-			eprintf("sheldon: Anticipated command, found nothing");
+			eprintf("sheldon: Anticipated command, found nothing\n");
 			return NULL;
 		}
 
@@ -70,7 +70,7 @@ compound_command *parser(char *line) {
 			strncpy(curr->_name->_text, token->_text, len);
 			curr->_name->_text[len] = '\0';
 		} else {
-			eprintf("sheldon: Anticipated command, found token %s", token->_text);
+			eprintf("sheldon: Anticipated command, found token %s\n", token->_text);
 			return NULL;
 		}
 
@@ -127,7 +127,7 @@ compound_command *parser(char *line) {
 						if ((token = get_next_token(NULL)) != NULL && token->_type == STRING) {
 							size_t len = strlen(token->_text);
 							if (curr_comp->_outFile != NULL) {
-								eprintf("sheldon: syntax: multiple output sources found");
+								eprintf("sheldon: syntax: multiple output sources found\n");
 								return NULL;
 							} else {
 								curr_comp->_outFile = (char *) malloc(len + 1);
@@ -135,7 +135,7 @@ compound_command *parser(char *line) {
 								curr_comp->_outFile[len] = 0;
 							}
 						} else {
-							eprintf("sheldon: syntax: expected filename after token %s", text);
+							eprintf("sheldon: syntax: expected filename after token %s\n", text);
 							return NULL;
 						}
 						if (strncmp(c, ">>", 2) == 0) {
@@ -148,7 +148,7 @@ compound_command *parser(char *line) {
 							if ((token = get_next_token(NULL)) != NULL && token->_type == STRING) {
 								size_t len = strlen(token->_text);
 								if (curr_comp->_inputFile != NULL) {
-									eprintf("sheldon: syntax: multiple input sources detected");
+									eprintf("sheldon: syntax: multiple input sources detected\n");
 									return NULL;
 								} else {
 									curr_comp->_inputFile = (char *) malloc(len + 1);
@@ -156,19 +156,16 @@ compound_command *parser(char *line) {
 									curr_comp->_inputFile[len] = 0;
 								}
 							} else {
-								eprintf("sheldon: parser: expected filename after token %s", text);
+								eprintf("sheldon: parser: expected filename after token %s\n", text);
 								return NULL;
 							}
 						} else {
-							if (curr_comp->_inputFile != NULL) {
-								eprintf("sheldon: syntax: multiple input sources detected");
-								free(curr_comp->_inputFile);
-								curr_comp->_inputFile = NULL;
-								return NULL;
-							}
+							eprintf("sheldon: syntax: multiple input sources detected\n");
+							curr_comp->_inputFile = NULL;
+							return NULL;
 						}
 						break;
-					default:eprintf("token %s not recongnized", text);
+					default:eprintf("token %s not recongnized\n", text);
 				}
 				free(curr_word);
 				free(buf);

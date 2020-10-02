@@ -27,7 +27,10 @@ const char *builtins[] = {
 	"unsetenv",
 	"getenv",
 	"jobs",
-	"kjob"
+	"kjob",
+	"fg",
+	"bg",
+	"overkill"
 };
 
 int (*builtin_functions[])(word_list *arg) = {
@@ -41,27 +44,32 @@ int (*builtin_functions[])(word_list *arg) = {
 	unset_env,
 	getenv_internal,
 	print_jobs,
-	kill_job
+	kill_job,
+	fg_job,
+	bg_job,
+	kill_jobs
 };
 
-pid_t last_child = -1;
+pid_t child_pgid = -1;
 
 static int execute_system_command(word *command, word_list *arg, int flag) {
-	pid_t pid_1;
+	pid_t child_pid;
 	char **argv;
 	int status = 0;
 
-	if ((pid_1 = fork()) == -1) {
+	if ((child_pid = fork()) == -1) {
 		/*the fork failed*/
 		perror("fork");
 		return -1;
-	} else if (pid_1 == 0) {
+	} else if (child_pid == 0) {
 		/*This is the child*/
+		signal(SIGINT, SIG_DFL);
+		signal(SIGINT, SIG_DFL);
+		signal(SIGCHLD, SIG_DFL);
 		argv = generate_argv(command, arg, 0);
-		if (flag == 1) { // if background
-			setpgid(0, 0);
-		}
+		setpgid(0, 0);
 		errno = 0;
+		tcsetpgrp(shell_terminal, child_pgid);
 		execvp(command->_text, argv);
 		if (errno == ENOENT) {
 			printf("sheldon: command not found %s\n", command->_text);
@@ -72,22 +80,34 @@ static int execute_system_command(word *command, word_list *arg, int flag) {
 		exit_abruptly(1);
 	}
 	/*what the parent should do*/
-	if (pid_1 > 0) {
+	if (child_pid > 0) {
 		/*if what we forked was a background process, stop*/
 		if (flag == 1) {
-			if (add_job(pid_1, get_complete_command(command, arg))) {
+			if (add_job(child_pid, get_complete_command(command, arg))) {
 				return 0;
 			} else {
 				return -1;
 			}
 		} else {
-			last_child = pid_1;
-			waitpid(-1, &status, WUNTRACED);
+			child_pgid = child_pid;
+
+			signal(SIGTTIN, SIG_IGN);
+			signal(SIGTTOU, SIG_IGN);
+
+			tcsetpgrp(shell_terminal, child_pgid);
+
+			waitpid(child_pgid, &status, WUNTRACED);
+
 			/*grab back control of the shell*/
 			tcsetpgrp(shell_terminal, shell_pgid);
 
+			fflush(stdout);
+
+			signal(SIGTTIN, SIG_DFL);
+			signal(SIGTTOU, SIG_DFL);
+
 			if (WIFSTOPPED(status)) {
-				put_job_in_bg(pid_1, 0);
+				put_job_in_bg(child_pgid, 0);
 			}
 			return 0;
 		}
@@ -133,6 +153,10 @@ int execute_compound_command(compound_command *cc) {
 	int input_fd;
 	if (cc->_inputFile != NULL) {
 		input_fd = open(cc->_inputFile, O_RDONLY);
+		if (input_fd == -1) {
+			perror("sheldon: open");
+			return -1;
+		}
 	} else {
 		input_fd = dup(saved_stdin);
 	}
@@ -151,12 +175,14 @@ int execute_compound_command(compound_command *cc) {
 					output_fd = open(cc->_outFile, O_CREAT | O_TRUNC | O_WRONLY, 0644);
 					if (output_fd == -1) {
 						perror("sheldon: open");
+						return -1;
 					}
 				} else {
 					output_fd =
 						open(cc->_outFile, O_CREAT | O_APPEND, 0644);
 					if (output_fd == -1) {
 						perror("sheldon: open");
+						return -1;
 					}
 				}
 			} else {

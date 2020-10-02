@@ -13,7 +13,6 @@
 #include <linux/limits.h>
 #include <signal.h>
 #include <sys/ioctl.h>
-#include <termios.h>
 
 
 /*for getting the value of system variables*/
@@ -21,6 +20,18 @@
 
 void init_terminal() {
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal);
+}
+
+void ctrlchandler(int signal) {
+	printf(" recieved signal ctrlc\n");
+	fflush(stdout);
+	display_prompt();
+}
+
+void ctrlzhandler(int signal) {
+	printf("recieved signal ctrl d\n");
+	fflush(stdout);
+	display_prompt();
 }
 
 void init_shell() {
@@ -36,8 +47,18 @@ void init_shell() {
 		exit(1);
 	}
 
+	shell_pgid = getpid();
+	if (setpgid(shell_pgid, shell_pgid) < 0) {
+		perror("Couldn't put the shell in its own process group");
+		exit(1);
+	}
+
+	/* Grab control of the terminal.  */
+	tcsetpgrp(shell_terminal, shell_pgid);
+
 	/*set the signal handler to repeat prompt if signal*/
-	signal(SIGINT, display_prompt);
+	signal(SIGINT, ctrlchandler);
+	signal(SIGTSTP, ctrlzhandler);
 	signal(SIGCHLD, poll_for_exited_jobs);
 }
 

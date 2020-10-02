@@ -3,6 +3,8 @@ project(sheldon C)
 
 set(CMAKE_C_STANDARD 99)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+
 add_executable(
         sheldon src/main.c src/command.c src/command.h src/parse.c src/parse.h src/input.c src/input.h
         builtins/cd.c builtins/cd.h src/builtins.h src/utils.c src/utils.h src/exec.c src/exec.h builtins/echo.c

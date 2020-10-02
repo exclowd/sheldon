@@ -4,16 +4,14 @@
 
 #include "jobs.h"
 #include "utils.h"
-#include "exec.h"
+#include "command.h"
 #include <signal.h>
 #include <wait.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <linux/limits.h>
-#include <sys/ioctl.h>
 #include <unistd.h>
-#include <termios.h>
 
 
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
@@ -56,23 +54,22 @@ static char get_proc_status(pid_t pid) {
 		free(proc);
 		return -1;
 	}
-	char status = 0;
+	char status[] = {'\0', '\0'};
 	for (int i = 0; i < 3; i++) {
 		if (i == 2) {
-			fscanf(fp, "%c", &status);
+			fscanf(fp, "%1s", status);
 		} else {
 			fscanf(fp, "%*s");
 		}
 	}
 	fclose(fp);
 	free(proc);
-	return status;
+	return status[0];
 }
 
 static void display_job_status(job_internal *j) {
 	printf("[%d] ", j->_jobid);
 	char c = get_proc_status(j->_pgid);
-	printf("%c", c);
 	switch (c) {
 		case 'T': printf("sleeping");
 			break;
@@ -168,7 +165,7 @@ int kill_job(word_list *args) {
 	}
 }
 
-void kill_all_bg_jobs() {
+void kill_all_bg_jobs(void) {
 	job_internal *curr = jobList->head;
 	job_internal *next;
 	while (curr != NULL) {
@@ -178,6 +175,18 @@ void kill_all_bg_jobs() {
 		free(curr);
 		curr = next;
 	}
+}
+
+int kill_jobs(word_list * args) {
+	int n = len(args);
+	if (n != 0) {
+		printf("sheldon: kjob: No arguments were expected");
+		return -1;
+	}
+	kill_all_bg_jobs();
+	delete_list(jobList);
+	jobList = make_list();
+	return (jobList != NULL);
 }
 
 int init_job_queue() {
@@ -196,7 +205,7 @@ int add_job(int pgid, char *command) {
 void poll_for_exited_jobs(int sig) {
 	int status;
 	pid_t pgid;
-	job_internal *job;
+	job_internal * job = NULL;
 	if (sig == SIGCHLD) printf("\n");
 	while (1) {
 		pgid = waitpid(-1, &status, WNOHANG);
@@ -207,9 +216,7 @@ void poll_for_exited_jobs(int sig) {
 			job = find(pgid, jobList);
 			if (job != NULL) {
 				printf("[%d] %d ", job->_jobid, job->_pgid);
-				if (WIFSIGNALED(status) && WTERMSIG(status)) {
-					printf("killed");
-				} else if (WEXITSTATUS(status) == EXIT_SUCCESS) {
+				if (WEXITSTATUS(status) == EXIT_SUCCESS) {
 					printf("done");
 				} else {
 					printf("exited with code %d", status);
@@ -217,7 +224,9 @@ void poll_for_exited_jobs(int sig) {
 				printf("\t %s\n", job->_command);
 				delete(pgid, jobList);
 			}
+			fflush(stdout);
 		} else {
+			fflush(stdout);
 			return;
 		}
 	}
@@ -225,7 +234,7 @@ void poll_for_exited_jobs(int sig) {
 
 int print_jobs(word_list *args) {
 	if (args != NULL) {
-		fprintf(stderr, "sheldon: jobs: No args needed");
+		fprintf(stderr, "sheldon: jobs: No args needed\n");
 		return -1;
 	} else {
 		display_all_jobs(jobList);
@@ -235,6 +244,9 @@ int print_jobs(word_list *args) {
 
 void put_job_in_fg(job_internal *j, int cont) {
 	/* Put the job into the foreground.  */
+	signal(SIGTTIN, SIG_IGN);
+	signal(SIGTTOU, SIG_IGN);
+
 	tcsetpgrp(shell_terminal, j->_pgid);
 
 	/* Send the job a continue signal, if necessary.  */
@@ -244,11 +256,19 @@ void put_job_in_fg(job_internal *j, int cont) {
 	}
 
 	int wstatus;
+
 	/* Wait for it to report.  */
-	waitpid(j->_pgid, &wstatus, 0);
+	waitpid(-j->_pgid, &wstatus, WUNTRACED);
 
 	/* Put the shell back in the foreground.  */
 	tcsetpgrp(shell_terminal, shell_pgid);
+
+	signal(SIGTTIN, SIG_DFL);
+	signal(SIGTTOU, SIG_DFL);
+
+	if (WIFSTOPPED(wstatus)) {
+		printf("[%d] %d suspended %s\n", j->_jobid, j->_pgid, j->_command);
+	}
 }
 
 void put_job_in_bg(pid_t pid, int cont) {
@@ -261,4 +281,41 @@ void put_job_in_bg(pid_t pid, int cont) {
 			perror("kill (SIGCONT)");
 	}
 	printf("[%d] %d suspended %s\n", j->_jobid, j->_pgid, j->_command);
+}
+
+int fg_job(word_list *args) {
+	int n = len(args);
+	if (n != 1) {
+		printf("sheldon: job: expected 1 argument found %d\n", n);
+		return -1;
+	}
+
+	int jobid = atoi(args->_word->_text);
+	job_internal *j;
+	if ((j = get_job(jobid, jobList)) != (job_internal *) NULL) {
+		put_job_in_fg(j, 1);
+		return 0;
+	} else {
+		printf("sheldon: bg: job-id %d does not exists, use jobs to see currently running jobs\n", jobid);
+		return -1;
+	}
+	return 0;
+}
+
+int bg_job(word_list *args) {
+	int n = len(args);
+	if (n != 1) {
+		printf("sheldon: job: expected 1 argument found %d\n", n);
+		return -1;
+	}
+	int jobid = atoi(args->_word->_text);
+	job_internal *j;
+	if ((j = get_job(jobid, jobList)) != (job_internal *) NULL) {
+		if (kill(-j->_pgid, SIGCONT) < 0)
+			perror("kill (SIGCONT)");
+		return 0;
+	} else {
+		printf("sheldon: bg: job-id %d does not exists, use jobs to see currently running jobs\n", jobid);
+		return -1;
+	}
 }

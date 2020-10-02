@@ -4,7 +4,6 @@
 
 #include "prompt.h"
 #include "utils.h"
-#include "jobs.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -32,6 +31,6 @@ void display_prompt(void) {
 		printf("\e[1m%s\e[0m $ ", pwd);
 	}
 
-
+	fflush(stdout);
 }
 

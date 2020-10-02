@@ -10,6 +10,6 @@
 
 int execute_compound_command(compound_command * cc);
 
-extern pid_t last_child;
+extern pid_t child_pgid;
 
 #endif //SHELDON_EXEC_H

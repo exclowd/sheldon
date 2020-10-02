@@ -19,12 +19,10 @@ char **input_argv;
 
 pid_t shell_pgid;
 
-
 struct winsize terminal;
 
-int shell_terminal;
+int shell_terminal = 0;
 
-int shell_is_interactive;
 
 void exit_successfully() {
 	kill_all_bg_jobs();

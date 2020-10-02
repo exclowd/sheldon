@@ -33,10 +33,16 @@ int print_jobs(word_list * args);
 
 int kill_job(word_list * args);
 
-void kill_all_bg_jobs();
+void kill_all_bg_jobs(void);
 
 void put_job_in_fg(job_internal * j, int cont);
 
 void put_job_in_bg(pid_t pid, int cont);
+
+int fg_job(word_list * args);
+
+int bg_job(word_list * args);
+
+int kill_jobs(word_list * args);
 
 #endif //SHELDON_PROCESS_H
