@@ -14,7 +14,6 @@
 
 extern pid_t shell_pgid;
 
-extern struct termios shell_tmodes;
 
 extern int shell_terminal;
 

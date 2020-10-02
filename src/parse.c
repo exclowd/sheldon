@@ -39,10 +39,9 @@ enum parser_state {
 static int curr_index = 0;
 static int length = 0;
 static char *input;
-int is_quoted = 0;
 static struct token *curr_token = (struct token *) NULL;
 
-void load_token(struct token *tok, char *string, enum token_type state) {
+static void load_token(struct token *tok, char *string, enum token_type state) {
 	size_t len = strlen(string);
 	tok->_text = (char *) malloc(len + 1);
 	strncpy(tok->_text, string, len);
@@ -110,7 +109,6 @@ struct token *get_next_token(char *line) {
 				state = DOUBLE_QUOTE;
 				last_word = input + curr_index + 1;
 				input[curr_index] = '\0';
-				is_quoted = 1;
 			}
 		} else if (c == '\'') {
 			if (state == SINGLE_QUOTE) {
@@ -125,7 +123,6 @@ struct token *get_next_token(char *line) {
 				state = SINGLE_QUOTE;
 				last_word = input + curr_index + 1;
 				input[curr_index] = '\0';
-				is_quoted = 1;
 			}
 		} else {
 			if (state != SINGLE_QUOTE && state != DOUBLE_QUOTE) {

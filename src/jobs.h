@@ -5,10 +5,12 @@
 #ifndef SHELDON_PROCESS_H
 #define SHELDON_PROCESS_H
 
+#include "command.h"
+#include <sys/types.h>
+
 typedef struct PROCESS_NODE {
 	int _pgid;
 	int _jobid;
-	int _status; // 0 for bg 1 for fg -1 exited
 	char *_command;
 	struct PROCESS_NODE *_next;
 } job_internal;
@@ -25,8 +27,16 @@ int init_job_queue(void);
 
 int add_job(int pgid, char *command);
 
-void poll_jobs(void);
+void poll_for_exited_jobs(int sig);
+
+int print_jobs(word_list * args);
+
+int kill_job(word_list * args);
 
 void kill_all_bg_jobs();
+
+void put_job_in_fg(job_internal * j, int cont);
+
+void put_job_in_bg(pid_t pid, int cont);
 
 #endif //SHELDON_PROCESS_H

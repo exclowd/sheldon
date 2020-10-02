@@ -33,11 +33,13 @@ typedef struct COMMAND {
 	int _background;
 } compound_command;
 
-compound_command *Parser(char *line);
+compound_command *parser(char *line);
 
 extern compound_command *current_command;
 
-void free_command(simple_command *command);
+extern simple_command * current_simple_command;
+
+int len(word_list * list);
 
 void free_compound_command(compound_command *command);
 

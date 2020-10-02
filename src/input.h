@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 
+extern char* input_string;
+
 extern size_t input_size;
 
 extern size_t buffer_size;

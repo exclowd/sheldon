@@ -11,7 +11,9 @@
 
 compound_command *current_command;
 
-compound_command *Parser(char *line) {
+simple_command * current_simple_command;
+
+compound_command *parser(char *line) {
 	compound_command *curr_comp;
 
 	curr_comp = (compound_command *) malloc(sizeof(compound_command));
@@ -191,7 +193,7 @@ compound_command *Parser(char *line) {
 	return curr_comp;
 }
 
-void free_command(simple_command *command) {
+static void free_command(simple_command *command) {
 	word_list *head = command->_args;
 	word_list *tmp;
 
@@ -222,8 +224,11 @@ void free_compound_command(compound_command *cc) {
 	free(cc);
 }
 
-int list_length(word_list *list) {
+int len(word_list *list) {
 	register int i;
+	if (list == (word_list *) NULL) {
+		return 0;
+	}
 	for (i = 0; list; list = list->_next, i++);
 	return i;
 }
@@ -253,7 +258,7 @@ char **generate_argv(word *command, word_list *list, int starting_index) {
 	int count;
 	char **array;
 
-	count = list_length(list);
+	count = len(list);
 	array = (char **) malloc((2 + count + starting_index) * sizeof(char *));
 
 	array[0] = command->_text;

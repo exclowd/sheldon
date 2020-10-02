@@ -9,10 +9,12 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
+
 #include "exec.h"
 #include "builtins.h"
 #include "utils.h"
 #include "jobs.h"
+
 
 const char *builtins[] = {
 	"cd",
@@ -23,7 +25,9 @@ const char *builtins[] = {
 	"exit",
 	"setenv",
 	"unsetenv",
-	"getenv"
+	"getenv",
+	"jobs",
+	"kjob"
 };
 
 int (*builtin_functions[])(word_list *arg) = {
@@ -35,34 +39,41 @@ int (*builtin_functions[])(word_list *arg) = {
 	(int (*)(word_list *)) exit_successfully,
 	set_env,
 	unset_env,
-	getenv_internal
+	getenv_internal,
+	print_jobs,
+	kill_job
 };
 
-static int last_child = 0;
+pid_t last_child = -1;
 
-int execute_system_command(word *command, word_list *arg, int flag) {
+static int execute_system_command(word *command, word_list *arg, int flag) {
 	pid_t pid_1;
 	char **argv;
 	int status = 0;
 
-	switch ((pid_1 = fork())) {
-
-		case -1: // definitely parent
-			perror("fork");
-			return -1;
-		case 0: // is the child
-			argv = generate_argv(command, arg, 0);
-			if (flag == 1) { // if background
-				setpgid(0, 0);
-			}
-			errno = 0;
-			execvp(command->_text, argv);
-			perror("sheldon : command");
-			free(argv);
-			exit_abruptly(1);
+	if ((pid_1 = fork()) == -1) {
+		/*the fork failed*/
+		perror("fork");
+		return -1;
+	} else if (pid_1 == 0) {
+		/*This is the child*/
+		argv = generate_argv(command, arg, 0);
+		if (flag == 1) { // if background
+			setpgid(0, 0);
+		}
+		errno = 0;
+		execvp(command->_text, argv);
+		if (errno == ENOENT) {
+			printf("sheldon: command not found %s\n", command->_text);
+		} else {
+			perror("sheldon: command");
+		}
+		free(argv);
+		exit_abruptly(1);
 	}
-
+	/*what the parent should do*/
 	if (pid_1 > 0) {
+		/*if what we forked was a background process, stop*/
 		if (flag == 1) {
 			if (add_job(pid_1, get_complete_command(command, arg))) {
 				return 0;
@@ -70,7 +81,14 @@ int execute_system_command(word *command, word_list *arg, int flag) {
 				return -1;
 			}
 		} else {
-			waitpid(0, &status, 0);
+			last_child = pid_1;
+			waitpid(-1, &status, WUNTRACED);
+			/*grab back control of the shell*/
+			tcsetpgrp(shell_terminal, shell_pgid);
+
+			if (WIFSTOPPED(status)) {
+				put_job_in_bg(pid_1, 0);
+			}
 			return 0;
 		}
 	}
@@ -78,14 +96,14 @@ int execute_system_command(word *command, word_list *arg, int flag) {
 	return -1;
 }
 
-int execute_simple_command(simple_command *cc, int flag) {
+static int execute_simple_command(simple_command *cc, int flag) {
 	word *command = cc->_name;
 	word_list *arg = cc->_args;
 
 	int ret = 0;
 
 	if (command == NULL || command->_text == NULL || strlen(command->_text) == 0) {
-		printf("(null) _command does not exist\n");
+		printf("(null) command does not exist\n");
 		return -1;
 	}
 
@@ -125,10 +143,12 @@ int execute_compound_command(compound_command *cc) {
 		dup2(input_fd, STDIN_FILENO); // set 0 to correspond to input fd
 		close(input_fd); // corresponds to no file now
 
+		current_simple_command = curr->_command;
+
 		if (curr->_next == NULL) {
 			if (cc->_outFile != NULL) {
 				if (!(cc->_append_input)) {
-					output_fd = open(cc->_outFile,  O_CREAT | O_TRUNC | O_WRONLY, 0644);
+					output_fd = open(cc->_outFile, O_CREAT | O_TRUNC | O_WRONLY, 0644);
 					if (output_fd == -1) {
 						perror("sheldon: open");
 					}
@@ -144,7 +164,10 @@ int execute_compound_command(compound_command *cc) {
 			}
 		} else {
 			int pipe_fd[2];
-			pipe(pipe_fd);
+			if (pipe(pipe_fd) < 0) {
+				perror("pipe");
+				return -1;
+			}
 			output_fd = pipe_fd[1];
 			input_fd = pipe_fd[0];
 		}

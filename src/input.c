@@ -21,14 +21,14 @@ enum input_state {
   SPACE
 };
 
-static char *input_string;
+char *input_string;
 
 static int escaped = 0;
 
 size_t buffer_size = 100;
 size_t input_size;
 
-void expand_tilda_to_home(void) {
+static void expand_tilda_to_home(void) {
 	size_t len = strlen(home);
 	for (int i = 0; i < len; i++) {
 		input_string[input_size++] = home[i];

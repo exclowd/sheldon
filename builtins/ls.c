@@ -5,11 +5,9 @@
 #include "ls.h"
 #include <stdlib.h>
 #include <string.h>
-#include <termios.h>
 #include "../src/utils.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <errno.h>
 #include <pwd.h>
 #include <grp.h>
@@ -22,15 +20,15 @@
 
 int curr_line_width = 0;
 
-enum filetype {
-	unknown,
-	fifo,
-	chardev,
-	directory,
-	blockdev,
-	normal,
-	symbolic_link,
-	socket,
+enum file_type {
+	UNKNOWN,
+	FIFO,
+	CHARDEV,
+	DIRECTORY,
+	BLOCKDEV,
+	NORMAL,
+	SYMBOLIC_LINK,
+	SOCKET,
 };
 
 static char const filetype_letter[] = "?pcdb-ls";
@@ -40,7 +38,7 @@ typedef struct FILE_INFO {
 	char *dir;
 	int is_quoted;
 	mode_t mode;
-	enum filetype filetype;
+	enum file_type filetype;
 } file_info;
 
 file_info *files_under;
@@ -77,13 +75,13 @@ static void print_format_short(file_info *file) {
 	char *color;
 
 	switch (file->filetype) {
-		case directory:color = "[01;34m";
+		case DIRECTORY:color = "[01;34m";
 			break;
-		case symbolic_link:color = "[01;36m";
+		case SYMBOLIC_LINK:color = "[01;36m";
 			break;
-		case fifo:color = "[01;33m";
+		case FIFO:color = "[01;33m";
 			break;
-		case normal:
+		case NORMAL:
 			if (file->mode & S_IEXEC) {
 				color = "[01;32m";
 			} else {
@@ -161,13 +159,13 @@ static void print_format_long(file_info *file) {
 		char *color;
 
 		switch (file->filetype) {
-			case directory:color = "[01;34m";
+			case DIRECTORY:color = "[01;34m";
 				break;
-			case symbolic_link:color = "[01;36m";
+			case SYMBOLIC_LINK:color = "[01;36m";
 				break;
-			case fifo:color = "[01;33m";
+			case FIFO:color = "[01;33m";
 				break;
-			case normal:
+			case NORMAL:
 				if (file->mode & S_IEXEC) {
 					color = "[01;32m";
 				} else {
@@ -208,7 +206,7 @@ static int remove_hidden(const struct dirent *dir) {
 	}
 }
 
-static int load_file_info(char *dir, char *name, int i, int ll, long *total) {
+static int load_file_info(char *dir, char *name, int i, long *total) {
 	char *pathname;
 
 	pathname = (char *) malloc(strlen(dir) + strlen(name) + 4);
@@ -221,7 +219,7 @@ static int load_file_info(char *dir, char *name, int i, int ll, long *total) {
 
 	files_under[i].name = name;
 	files_under[i].dir = dir;
-	files_under[i].filetype = unknown;
+	files_under[i].filetype = UNKNOWN;
 
 	attach(pathname, dir, name);
 
@@ -230,21 +228,21 @@ static int load_file_info(char *dir, char *name, int i, int ll, long *total) {
 	if (lstat(pathname, &buf) == 0) {
 
 		switch (buf.st_mode & S_IFMT) {
-			case S_IFBLK:files_under[i].filetype = blockdev;
+			case S_IFBLK:files_under[i].filetype = BLOCKDEV;
 				break;
-			case S_IFCHR:files_under[i].filetype = chardev;
+			case S_IFCHR:files_under[i].filetype = CHARDEV;
 				break;
-			case S_IFDIR:files_under[i].filetype = directory;
+			case S_IFDIR:files_under[i].filetype = DIRECTORY;
 				break;
-			case S_IFIFO:files_under[i].filetype = fifo;
+			case S_IFIFO:files_under[i].filetype = FIFO;
 				break;
-			case S_IFLNK:files_under[i].filetype = symbolic_link;
+			case S_IFLNK:files_under[i].filetype = SYMBOLIC_LINK;
 				break;
-			case S_IFREG:files_under[i].filetype = normal;
+			case S_IFREG:files_under[i].filetype = NORMAL;
 				break;
-			case S_IFSOCK:files_under[i].filetype = socket;
+			case S_IFSOCK:files_under[i].filetype = SOCKET;
 				break;
-			default:files_under[i].filetype = unknown;
+			default:files_under[i].filetype = UNKNOWN;
 				break;
 		}
 
@@ -284,7 +282,7 @@ static int enumerate_files_in_dir(char *dir, int all, int ll) {
 	files_under = (file_info *) malloc(sizeof(file_info) * (n + 1));
 
 	for (int i = 0; i < n; i++) {
-		if (load_file_info(dir, namelist[i]->d_name, i, ll, &total) == -1) {
+		if (load_file_info(dir, namelist[i]->d_name, i, &total) == -1) {
 			free(files_under);
 			free(namelist);
 			return -1;
@@ -309,16 +307,16 @@ static int enumerate_files_in_dir(char *dir, int all, int ll) {
 	return 0;
 }
 
-static int list_single_file(char *file, int all, int ll) {
+static int list_single_file(char *file, int ll) {
 	files_under = (file_info *) malloc(sizeof(file_info) * (1));
 
 	long total = 0;
 
-	if (load_file_info(".", file, 0, ll, &total) == -1) {
+	if (load_file_info(".", file, 0, &total) == -1) {
 		free(files_under);
 		return -1;
 	}
-	width = strlen(files_under[0].name) + 2 + 1;
+	width = (int) strlen(files_under[0].name) + 2 + 1;
 
 	format_functions[ll](&files_under[0]);
 
@@ -369,7 +367,7 @@ int list_files_internal(word_list *args) {
 					if (enumerate_files_in_dir(curr->_word->_text, all, ll) == -1) {
 						return -1;
 					}
-				} else if (list_single_file(curr->_word->_text, all, ll) == -1) {
+				} else if (list_single_file(curr->_word->_text, ll) == -1) {
 					return -1;
 				}
 				if (cnt > 1) printf("\n");

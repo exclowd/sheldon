@@ -19,7 +19,6 @@ char **input_argv;
 
 pid_t shell_pgid;
 
-struct termios shell_tmodes;
 
 struct winsize terminal;
 
@@ -45,7 +44,6 @@ void exit_safely(int return_code) {
 }
 
 void exit_abruptly(int return_code) {
-	kill_all_bg_jobs();
 	free(home);
 	free(pwd);
 	free(inp);
