@@ -42,3 +42,4 @@ Loads the command into command list.
 * env.c : handles setting and unsetting of environment variables
 * jobs.c : handles the job control of the program
 * prompt.c : handles the prompt functionality of the shell
+* pinfo.c handles the pinfo builtin
