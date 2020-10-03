@@ -13,7 +13,7 @@
 #include <linux/limits.h>
 #include <signal.h>
 #include <sys/ioctl.h>
-
+#include <termios.h>
 
 /*for getting the value of system variables*/
 
@@ -23,13 +23,13 @@ void init_terminal() {
 }
 
 void ctrlchandler(int signal) {
-	printf(" recieved signal ctrlc\n");
+	printf("\n");
 	fflush(stdout);
 	display_prompt();
 }
 
 void ctrlzhandler(int signal) {
-	printf("recieved signal ctrl d\n");
+	printf("\n");
 	fflush(stdout);
 	display_prompt();
 }
@@ -55,6 +55,8 @@ void init_shell() {
 
 	/* Grab control of the terminal.  */
 	tcsetpgrp(shell_terminal, shell_pgid);
+	tcgetattr(STDIN_FILENO, &orig_termios);
+	
 
 	/*set the signal handler to repeat prompt if signal*/
 	signal(SIGINT, ctrlchandler);
@@ -70,6 +72,7 @@ int main() {
 		init_terminal();
 		display_prompt();
 
+		
 		if ((inp = read_input()) != NULL) {
 			/*set the normal signal handling*/
 

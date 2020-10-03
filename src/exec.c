@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
+#include <signal.h>
+#include <termios.h>
+
 
 #include "exec.h"
 #include "builtins.h"
@@ -56,26 +59,41 @@ static int execute_system_command(word *command, word_list *arg, int flag) {
 	pid_t child_pid;
 	char **argv;
 	int status = 0;
-
 	if ((child_pid = fork()) == -1) {
 		/*the fork failed*/
 		perror("fork");
 		return -1;
 	} else if (child_pid == 0) {
 		/*This is the child*/
-		signal(SIGINT, SIG_DFL);
-		signal(SIGINT, SIG_DFL);
-		signal(SIGCHLD, SIG_DFL);
+		signal (SIGINT, SIG_DFL);
+		signal (SIGQUIT, SIG_DFL);
+		signal (SIGTSTP, SIG_DFL);
+		signal (SIGTTIN, SIG_DFL);
+		signal (SIGTTOU, SIG_DFL);
+		signal (SIGCHLD, SIG_DFL);
+
+		int pid = getpid();
+		int pgid = child_pgid;
+		
 		argv = generate_argv(command, arg, 0);
-		setpgid(0, 0);
-		errno = 0;
-		tcsetpgrp(shell_terminal, child_pgid);
+		
+		if (pgid == -1) {
+			pgid = pid;
+		}
+		
+		setpgid(pid, pgid);
+		if (!flag) {
+			tcsetpgrp(shell_terminal, pgid); // make myself incharge
+		}
+		
 		execvp(command->_text, argv);
+		
 		if (errno == ENOENT) {
 			printf("sheldon: command not found %s\n", command->_text);
 		} else {
 			perror("sheldon: command");
 		}
+		
 		free(argv);
 		exit_abruptly(1);
 	}
@@ -85,30 +103,35 @@ static int execute_system_command(word *command, word_list *arg, int flag) {
 		if (flag == 1) {
 			if (add_job(child_pid, get_complete_command(command, arg))) {
 				return 0;
-			} else {
-				return -1;
-			}
-		} else {
-			child_pgid = child_pid;
-
+			} 
+			return -1;
+		} else { // forground
+			if (child_pgid == -1) child_pgid = child_pid;
 			signal(SIGTTIN, SIG_IGN);
 			signal(SIGTTOU, SIG_IGN);
+			signal(SIGCHLD, SIG_DFL);
 
+			setpgid(child_pid, child_pgid);
 			tcsetpgrp(shell_terminal, child_pgid);
-
-			waitpid(child_pgid, &status, WUNTRACED);
+			
+			waitpid(-child_pgid, &status, WUNTRACED);
 
 			/*grab back control of the shell*/
 			tcsetpgrp(shell_terminal, shell_pgid);
+  			tcsetattr (shell_terminal, TCSAFLUSH, &orig_termios) ;
+
 
 			fflush(stdout);
 
 			signal(SIGTTIN, SIG_DFL);
 			signal(SIGTTOU, SIG_DFL);
-
+			signal(SIGCHLD, poll_for_exited_jobs);
+			
 			if (WIFSTOPPED(status)) {
 				put_job_in_bg(child_pgid, 0);
 			}
+
+			poll_for_exited_jobs(0);
 			return 0;
 		}
 	}
@@ -127,7 +150,7 @@ static int execute_simple_command(simple_command *cc, int flag) {
 		return -1;
 	}
 
-	register int found = 0;
+	int found = 0;
 
 	int len = sizeof(builtins) / sizeof(char *);
 
@@ -160,6 +183,7 @@ int execute_compound_command(compound_command *cc) {
 	} else {
 		input_fd = dup(saved_stdin);
 	}
+	child_pgid = -1;
 
 	int ret = 0;
 	int output_fd;

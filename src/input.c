@@ -49,7 +49,7 @@ char *read_input() {
 	while ((c = (char) getchar())) {
 		if (c == EOF) {
 			free(input_string);
-			exit_safely(0);
+			exit_safely(1);
 		}
 		int skip = 0;
 		if (escaped) {

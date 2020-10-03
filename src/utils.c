@@ -23,8 +23,11 @@ struct winsize terminal;
 
 int shell_terminal = 0;
 
+struct termios orig_termios;
+
 
 void exit_successfully() {
+	printf("Exiting successfully");
 	kill_all_bg_jobs();
 	free(home);
 	free(pwd);
@@ -35,6 +38,7 @@ void exit_successfully() {
 }
 
 void exit_safely(int return_code) {
+	printf("Exiting safely %d", return_code);
 	kill_all_bg_jobs();
 	free(home);
 	free(pwd);
@@ -42,6 +46,7 @@ void exit_safely(int return_code) {
 }
 
 void exit_abruptly(int return_code) {
+	printf("Exiting abruptly");
 	free(home);
 	free(pwd);
 	free(inp);

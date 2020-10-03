@@ -1,2 +1,2 @@
 sheldon : src/main.c src/command.c src/command.h src/parse.c src/parse.h src/input.c src/input.h builtins/cd.c builtins/cd.h src/builtins.h src/utils.c src/utils.h src/exec.c src/exec.h builtins/echo.c builtins/echo.h src/jobs.c src/jobs.h builtins/ls.c builtins/ls.h builtins/pinfo.c builtins/pinfo.h builtins/env.c builtins/env.h src/prompt.c src/prompt.h
-	gcc -o sheldon src/main.c src/command.c src/parse.c src/input.c  src/utils.c  src/exec.c  src/jobs.c src/prompt.c builtins/ls.c builtins/pinfo.c  builtins/env.c  builtins/cd.c builtins/echo.c
+	gcc -ggdb3 -o sheldon src/main.c src/command.c src/parse.c src/input.c  src/utils.c  src/exec.c  src/jobs.c src/prompt.c builtins/ls.c builtins/pinfo.c  builtins/env.c  builtins/cd.c builtins/echo.c

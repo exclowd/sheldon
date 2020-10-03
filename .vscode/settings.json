@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "signal.h": "c",
+        "limits.h": "c",
+        "jobs.h": "c",
+        "termios.h": "c"
+    }
+}

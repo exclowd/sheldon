@@ -125,6 +125,24 @@ static void delete(int pid, job_list *list) {
 	}
 }
 
+static void delete_job(int jobid, job_list *list) {
+	job_internal *curr = list->head;
+	job_internal *previous = curr;
+	while (curr != NULL) {
+		if (curr->_jobid == jobid) {
+			previous->_next = curr->_next;
+			if (curr == list->head) {
+				list->head = curr->_next;
+			}
+			free(curr->_command);
+			free(curr);
+			return;
+		}
+		previous = curr;
+		curr = curr->_next;
+	}
+}
+
 static job_internal *find(pid_t pid, job_list *list) {
 	job_internal *curr = list->head;
 	while (curr != NULL) {
@@ -208,27 +226,42 @@ void poll_for_exited_jobs(int sig) {
 	job_internal * job = NULL;
 	if (sig == SIGCHLD) printf("\n");
 	while (1) {
-		pgid = waitpid(-1, &status, WNOHANG);
+		pgid = waitpid(-1, &status, WNOHANG|WUNTRACED);
+		
+		/* Grab control of the terminal.  */
+		tcsetpgrp(shell_terminal, shell_pgid);
+		tcgetattr(STDIN_FILENO, &orig_termios);
+
 		if (pgid < 0 && errno != ECHILD) {
 			perror("wait :");
 			return;
 		} else if (pgid > 0) {
 			job = find(pgid, jobList);
 			if (job != NULL) {
-				printf("[%d] %d ", job->_jobid, job->_pgid);
-				if (WEXITSTATUS(status) == EXIT_SUCCESS) {
-					printf("done");
-				} else {
-					printf("exited with code %d", status);
+				if (WIFSTOPPED(status)) { // ctrl z
+					printf("[%d] %d\t%s was suspended with signal %d", job->_jobid, job->_pgid, job->_command, WSTOPSIG(status));
+				} else if (WIFEXITED(status)) {
+					printf("[%d] %d ", job->_jobid, job->_pgid);
+					if (WEXITSTATUS(status) == EXIT_SUCCESS) {
+						printf("exited succesfully");
+					} else {
+						printf("exited with status %d", WEXITSTATUS(status));
+					}
+					printf("\t %s", job->_command);
+					delete_job(job->_jobid, jobList);
+				} else if (WIFSIGNALED(status)) {
+					printf("[%d] %d ", job->_jobid, job->_pgid);
+					printf("recieved signal %d", WTERMSIG(status));
+					printf("\t %s", job->_command);
+					delete_job(job->_jobid, jobList);		
 				}
-				printf("\t %s\n", job->_command);
-				delete(pgid, jobList);
 			}
 			fflush(stdout);
 		} else {
 			fflush(stdout);
 			return;
 		}
+		printf("\n");
 	}
 }
 
@@ -267,14 +300,20 @@ void put_job_in_fg(job_internal *j, int cont) {
 	signal(SIGTTIN, SIG_DFL);
 	signal(SIGTTOU, SIG_DFL);
 
-	if (WIFSTOPPED(wstatus)) {
-		printf("[%d] %d suspended %s\n", j->_jobid, j->_pgid, j->_command);
+	if (WIFSTOPPED(wstatus)) { // ctrl z
+		printf("[%d] %d was suspended with signal %d %s", j->_jobid, j->_pgid, WSTOPSIG(wstatus), j->_command);
 	} else if (WIFEXITED(wstatus)) {
 		printf("[%d] %d ", j->_jobid, j->_pgid);
-		printf("done");
-		printf("\t %s\n", j->_command);
-		delete(j->_pgid, jobList);
+		printf("exited with status %d", WEXITSTATUS(wstatus));
+		printf("\t %s", j->_command);
+		delete_job(j->_jobid, jobList);
 		fflush(stdout);
+	} else if (WIFSIGNALED(wstatus)) {
+		printf("[%d] %d ", j->_jobid, j->_pgid);
+		printf("recieved signal %d", WTERMSIG(wstatus));
+		printf("\t %s", j->_command);
+		delete_job(j->_jobid, jobList);
+		fflush(stdout);			
 	}
 
 	poll_for_exited_jobs(0);
@@ -289,7 +328,7 @@ void put_job_in_bg(pid_t pid, int cont) {
 		if (kill(-j->_pgid, SIGCONT) < 0)
 			perror("kill (SIGCONT)");
 	}
-	printf("[%d] %d suspended %s\n", j->_jobid, j->_pgid, j->_command);
+	printf("[%d] %d suspended %s", j->_jobid, j->_pgid, j->_command);
 }
 
 int fg_job(word_list *args) {

@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <termios.h>
 
 
 #define eprintf(...) fprintf(stderr,__VA_ARGS__),fflush(stderr)
@@ -26,6 +27,8 @@ extern char *pwd;
 extern char *inp;
 
 extern struct winsize terminal;
+
+struct termios orig_termios;
 
 extern char **input_argv;
 
