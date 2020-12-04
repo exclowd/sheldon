@@ -7,26 +7,25 @@
 #include <string.h>
 #include <ctype.h>
 
-
-int echo(word_list *args) {
-	while (args != NULL) {
-		if (args->_word->_text != NULL) {
-			int quotes = 0;
-			size_t len = strlen(args->_word->_text);
-			for (int i = 0; i < len; i++) {
-				if (isspace(args->_word->_text[i])) {
-					quotes = 1;
-					break;
-				}
-			}
-			if (quotes) {
-				fprintf(stdout, "%s", args->_word->_text);
-			} else {
-				fprintf(stdout, "%s ", args->_word->_text);
-			}
+int echo(WordList *args) {
+  while (args != NULL) {
+	if (args->_word->_text != NULL) {
+	  int quotes = 0;
+	  size_t len = strlen(args->_word->_text);
+	  for (int i = 0; i < len; i++) {
+		if (isspace(args->_word->_text[i])) {
+		  quotes = 1;
+		  break;
 		}
-		args = args->_next;
+	  }
+	  if (quotes) {
+		fprintf(stdout, "%s", args->_word->_text);
+	  } else {
+		fprintf(stdout, "%s ", args->_word->_text);
+	  }
 	}
-	printf("\n");
-	return 0;
+	args = args->_next;
+  }
+  printf("\n");
+  return 0;
 }

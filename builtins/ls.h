@@ -2,12 +2,11 @@
 // Created by kannav on 9/8/20.
 //
 
-#ifndef SHELDON_LS_H
-#define SHELDON_LS_H
+#ifndef SHELDON_BUILTINS_LS_H
+#define SHELDON_BUILTINS_LS_H
 
 #include "../src/command.h"
 
+int list_files_internal(WordList *args);
 
-int list_files_internal(word_list *args);
-
-#endif //SHELDON_LS_H
+#endif //SHELDON_BUILTINS_LS_H

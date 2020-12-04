@@ -2,22 +2,18 @@
 // Created by kannav on 9/1/20.
 //
 
-#ifndef SHELDON_UTILS_H
-#define SHELDON_UTILS_H
+#ifndef SHELDON_SRC_UTILS_H
+#define SHELDON_SRC_UTILS_H
 
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
 
-
-#define eprintf(...) fprintf(stderr,__VA_ARGS__),fflush(stderr)
+#define EPRINTF(...) fprintf(stderr,__VA_ARGS__),fflush(stderr)
 
 extern pid_t shell_pgid;
 
-
 extern int shell_terminal;
-
-extern int shell_is_interactive;
 
 extern char *home;
 
@@ -35,4 +31,4 @@ void exit_safely(int return_code);
 
 void exit_abruptly(int return_code);
 
-#endif //SHELDON_UTILS_H
+#endif //SHELDON_SRC_UTILS_H

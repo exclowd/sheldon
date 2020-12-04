@@ -2,59 +2,59 @@
 // Created by kannav on 9/1/20.
 //
 
-#ifndef SHELDON_COMMAND_H
-#define SHELDON_COMMAND_H
+#ifndef SHELDON_SRC_COMMAND_H
+#define SHELDON_SRC_COMMAND_H
 
 typedef struct NODE {
-	char *_text;
-} word;
+  char *_text;
+} Word;
 
 typedef struct LINK_LIST_NODE {
-	struct LINK_LIST_NODE *_next;
-	word *_word;
-} word_list;
+  struct LINK_LIST_NODE *_next;
+  Word *_word;
+} WordList;
 
 // Yay malloc went away
 typedef struct SIMPLE_COMMAND {
-	word *_name;
-	word_list *_args;
-} simple_command;
+  Word *_name;
+  WordList *_args;
+} SimpleCommand;
 
 typedef struct LINK_LIST_SIMPLE_COMMAND {
-	simple_command *_command;
-	struct LINK_LIST_SIMPLE_COMMAND *_next;
-} simple_command_list;
+  SimpleCommand *_command;
+  struct LINK_LIST_SIMPLE_COMMAND *_next;
+} SimpleCommandList;
 
 typedef struct COMMAND {
-	char *_outFile;
-	char *_inputFile;
-	int _append_input;
-	simple_command_list *_simple_commands;
-	int _background;
-} compound_command;
+  char *_outFile;
+  char *_inputFile;
+  int _append_input;
+  SimpleCommandList *_simple_commands;
+  int _background;
+} CompoundCommand;
 
-compound_command *parser(char *line);
+CompoundCommand *parser(char *line);
 
-extern compound_command *current_command;
+extern CompoundCommand *current_command;
 
-extern simple_command * current_simple_command;
+extern SimpleCommand *current_simple_command;
 
-int len(word_list * list);
+int len(WordList *list);
 
-void free_compound_command(compound_command *command);
+void free_compound_command(CompoundCommand *command);
 
-char *get_complete_command(word *command, word_list *args);
+char *get_complete_command(Word *command, WordList *args);
 
-char **generate_argv(word *command, word_list *list, int starting_index);
+char **generate_argv(Word *command, WordList *list, int starting_index);
 
-extern word_list *current; // the current list word
+extern WordList *current; // the current list word
 
-extern word_list *nonopt; // start the execution from here
+extern WordList *nonopt; // start the execution from here
 
 extern char *option_argument;
 
-int get_command_opt(word_list *list, char *opts);
+int get_command_opt(WordList *list, char *opts);
 
 void reset_get_command_opt(void);
 
-#endif //SHELDON_COMMAND_H
+#endif //SHELDON_SRC_COMMAND_H
