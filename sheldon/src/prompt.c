@@ -2,7 +2,6 @@
 // Created by kannav on 10/2/20.
 //
 
-#include "prompt.h"
 #include "utils.h"
 #include <stdio.h>
 #include <unistd.h>

@@ -19,6 +19,6 @@ extern size_t input_size;
 
 extern size_t buffer_size;
 
-char *read_input(void);
+extern char *read_input(void);
 
 #endif //SHELDON_SRC_INPUT_H

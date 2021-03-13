@@ -1,11 +1,3 @@
-
-#include "parse.h"
-#include "input.h"
-#include "command.h"
-#include "utils.h"
-#include "exec.h"
-#include "jobs.h"
-#include "prompt.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -14,6 +6,13 @@
 #include <signal.h>
 #include <sys/ioctl.h>
 
+#include "parse.h"
+#include "input.h"
+#include "command.h"
+#include "utils.h"
+#include "exec.h"
+#include "jobs.h"
+#include "prompt.h"
 /*for getting the value of system variables*/
 
 
@@ -23,6 +22,7 @@ void init_terminal() {
 
 void ctrl_c_handler(int signal) {
   fflush(stdout);
+  printf("\n");
   display_prompt();
 }
 

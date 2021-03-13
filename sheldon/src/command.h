@@ -31,28 +31,26 @@ typedef struct COMMAND {
   int _background;
 } __attribute__((aligned(32))) __attribute__((packed)) CompoundCommand;
 
-CompoundCommand *generate_command(char *line);
+extern CompoundCommand *generate_command(char *line);
 
 extern CompoundCommand *current_command;
 
 extern SimpleCommand *current_simple_command;
 
-int len(ArgsList *list);
+extern int len(ArgsList *list);
 
-void free_compound_command(CompoundCommand *command);
+extern void free_compound_command(CompoundCommand *command);
 
-char *get_complete_command(char *command, ArgsList *args);
+extern char *get_complete_command(char *command, ArgsList *args);
 
-char **generate_argv(char *command, ArgsList *list, int starting_index);
+extern char **generate_argv(char *command, ArgsList *list, int starting_index);
 
 extern ArgsList *current; // the current list word
 
 extern ArgsList *nonopt; // start the execution from here
 
-extern char *option_argument;
+extern int get_command_opt(ArgsList *list, char *opts);
 
-int get_command_opt(ArgsList *list, char *opts);
-
-void reset_get_command_opt(void);
+extern void reset_get_command_opt(void);
 
 #endif //SHELDON_SRC_COMMAND_H

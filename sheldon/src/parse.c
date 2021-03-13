@@ -8,6 +8,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define NULL_TERMINATE(x, y) x[(y)++] = '\0'
+
 // argv is pointer ot a 2-D array
 int split_into_commands(char ***argv, char *inp) {
   register int i = 0;
@@ -83,7 +85,7 @@ struct token *get_next_token(char *line) {
 	c = input[i];
 	if (isspace(c)) {
 	  if (curr_state != SINGLE_QUOTE && curr_state != DOUBLE_QUOTE) {
-		input[i++] = '\0';
+		NULL_TERMINATE(input, i);
 		if (strlen(starting_pos) > 0) {
 		  load_token(curr_token, starting_pos, STRING);
 		  return curr_token;
@@ -91,7 +93,7 @@ struct token *get_next_token(char *line) {
 	  }
 	} else if (c == '"') {
 	  if (curr_state == DOUBLE_QUOTE) {
-		input[i++] = '\0';
+		NULL_TERMINATE(input, i);
 		if (strlen(starting_pos) > 0) {
 		  load_token(curr_token, starting_pos, STRING);
 		  return curr_token;
@@ -103,7 +105,7 @@ struct token *get_next_token(char *line) {
 	  }
 	} else if (c == '\'') {
 	  if (curr_state == SINGLE_QUOTE) {
-		input[i++] = '\0';
+		NULL_TERMINATE(input, i);
 		if (strlen(starting_pos) > 0) {
 		  load_token(curr_token, starting_pos, STRING);
 		  return curr_token;
@@ -120,21 +122,20 @@ struct token *get_next_token(char *line) {
 	  case '<':
 	  case '|': str[0] = c;
 		load_token(curr_token, str, SYMBOL);
-		input[i++] = '\0';
+		NULL_TERMINATE(input, i);
 		return curr_token;
 	  case '>':
 		if (input[i + 1] == '>') {
 		  load_token(curr_token, ">>", SYMBOL);
-		  input[i++] = '\0';
-		  input[i++] = '\0';
+		  NULL_TERMINATE(input, i);
 		  return curr_token;
 		} else {
 		  load_token(curr_token, ">", SYMBOL);
-		  input[i++] = '\0';
+		  NULL_TERMINATE(input, i);
 		  return curr_token;
 		}
 	  case '\0': load_token(curr_token, starting_pos, STRING);
-		input[i++] = '\0';
+		NULL_TERMINATE(input, i);
 		return curr_token;
 	  default:
 		if (curr_state == INIT) {

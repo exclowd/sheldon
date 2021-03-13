@@ -284,7 +284,6 @@ int get_command_opt(ArgsList *list, char *opts) {
 	  }
 	  return -1; // Terminate
 	}
-//        printf("current->SIMPLE_WORD->_text %s\n", current->SIMPLE_WORD->_text);
 	if (*(current->_text) != '-') {
 	  if (nonopt == NULL) {
 		nonopt = current;

@@ -25,10 +25,10 @@ extern struct winsize terminal;
 
 extern char **input_argv;
 
-void exit_successfully(void);
+extern void exit_successfully(void);
 
-void exit_safely(int return_code);
+extern void exit_safely(int return_code);
 
-void exit_abruptly(int return_code);
+extern void exit_abruptly(int return_code);
 
 #endif //SHELDON_SRC_UTILS_H

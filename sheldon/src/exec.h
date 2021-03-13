@@ -7,7 +7,7 @@
 
 #include "command.h"
 
-int execute_compound_command(CompoundCommand *cc);
+extern int execute_compound_command(CompoundCommand *cc);
 
 extern pid_t child_pgid;
 
