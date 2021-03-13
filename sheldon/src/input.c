@@ -70,7 +70,7 @@ char *read_input() {
 		case '\\': input[input_size] = '\\';
 		  skip = 1;
 		  break;
-		default:;
+		default: break;
 		}
 	  } else {
 		EPRINTF("sheldon: input: stray escape sequence found, quote it first\n");

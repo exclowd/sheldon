@@ -15,13 +15,16 @@ SimpleCommand *current_simple_command;
 CompoundCommand *new_compound_command() {
   CompoundCommand *curr_comp;
   curr_comp = (CompoundCommand *) malloc(sizeof(CompoundCommand));
-  curr_comp->_outFile = curr_comp->_inputFile = NULL;
+  curr_comp->_outFile = curr_comp->_inFile = NULL;
   curr_comp->_append_input = curr_comp->_background = 0;
   return curr_comp;
 }
 
-CompoundCommand *parser(char *line) {
-
+CompoundCommand *generate_command(char *line) {
+  /**
+   * Generate command from the input string
+   * @param line
+   */
   CompoundCommand *curr_comp = new_compound_command();
   int is_start = 1;
   int anticipate_command = 1;
@@ -31,7 +34,6 @@ CompoundCommand *parser(char *line) {
   // keep inputting commands unless disturbed
   while (1) {
 	struct token *token = get_next_token((is_start ? line : (char *) NULL));
-//	printf("token: %s", token->_text);
 	if (token == NULL) {
 	  if (anticipate_command) {
 		EPRINTF("sheldon: syntax: command anticipated found nothing\n");
@@ -134,21 +136,21 @@ CompoundCommand *parser(char *line) {
 		  if (is_start) {
 			if ((token = get_next_token(NULL)) != NULL && token->_type == STRING) {
 			  size_t len = strlen(token->_text);
-			  if (curr_comp->_inputFile != NULL) {
+			  if (curr_comp->_inFile != NULL) {
 				EPRINTF("sheldon: syntax: multiple input sources detected\n");
 				return NULL;
 			  } else {
-				curr_comp->_inputFile = (char *) malloc(len + 1);
-				strncpy(curr_comp->_inputFile, token->_text, len);
-				curr_comp->_inputFile[len] = 0;
+				curr_comp->_inFile = (char *) malloc(len + 1);
+				strncpy(curr_comp->_inFile, token->_text, len);
+				curr_comp->_inFile[len] = 0;
 			  }
 			} else {
-			  EPRINTF("sheldon: parser: expected filename after token %s\n", text);
+			  EPRINTF("sheldon: generate_command: expected filename after token %s\n", text);
 			  return NULL;
 			}
 		  } else {
 			EPRINTF("sheldon: syntax: multiple input sources detected\n");
-			curr_comp->_inputFile = NULL;
+			curr_comp->_inFile = NULL;
 			return NULL;
 		  }
 		} else {
@@ -200,7 +202,7 @@ void free_compound_command(CompoundCommand *cc) {
 	free(tmp);
   }
   free(cc->_outFile);
-  free(cc->_inputFile);
+  free(cc->_inFile);
   free(cc);
 }
 

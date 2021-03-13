@@ -53,17 +53,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-#CMake Aritifacts
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
+# CMake Aritifacts
 compile_commands.json
-CTestTestfile.cmake
-_deps
 cmake-build-debug
 

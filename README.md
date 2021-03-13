@@ -25,7 +25,7 @@ The following functions are implemented
 
 ###  TODO
 - [ ]  Implement History through GNU readline
-- [ ]  Add support for '()' in the parser
+- [ ]  Add support for '()' in the generate_command
 - [ ]  Convert the process list into a hash map
 
 ##### File Structure

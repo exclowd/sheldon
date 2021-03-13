@@ -25,13 +25,13 @@ typedef struct LINK_LIST_SIMPLE_COMMAND {
 
 typedef struct COMMAND {
   char *_outFile;
-  char *_inputFile;
+  char *_inFile;
   int _append_input;
   SimpleCommandList *_simple_commands;
   int _background;
 } __attribute__((aligned(32))) __attribute__((packed)) CompoundCommand;
 
-CompoundCommand *parser(char *line);
+CompoundCommand *generate_command(char *line);
 
 extern CompoundCommand *current_command;
 

@@ -2,19 +2,20 @@
 // Created by kannav on 9/8/20.
 //
 
+
+#include <dirent.h>
+#include <errno.h>
+#include <grp.h>
+#include <pwd.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <errno.h>
-#include <pwd.h>
-#include <grp.h>
 #include <time.h>
-#include <dirent.h>
 
-
-#include "../src/utils.h"
 #include "ls.h"
+#include "../src/utils.h"
 
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 

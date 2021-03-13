@@ -69,7 +69,7 @@ int main() {
 
 	  for (int i = 0; i < len; i++) {
 		/*break the string into actual command*/
-		command = parser(input_argv[i]);
+		command = generate_command(input_argv[i]);
 
 		if (command != NULL) {
 		  /*set the global command name to be this command*/

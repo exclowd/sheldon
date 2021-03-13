@@ -2,10 +2,11 @@
 // Created by kannav on 9/2/20.
 //
 
-#include "echo.h"
-#include "../src/utils.h"
 #include <string.h>
 #include <ctype.h>
+#include <stdio.h>
+
+#include "echo.h"
 
 int echo(ArgsList *args) {
   while (args != NULL) {

@@ -150,8 +150,8 @@ int execute_compound_command(CompoundCommand *cc) {
   int saved_stdout = dup(STDOUT_FILENO);
 
   int input_fd;
-  if (cc->_inputFile != NULL) {
-	input_fd = open(cc->_inputFile, O_RDONLY);
+  if (cc->_inFile != NULL) {
+	input_fd = open(cc->_inFile, O_RDONLY);
 	if (input_fd == -1) {
 	  perror("sheldon: open");
 	  return -1;

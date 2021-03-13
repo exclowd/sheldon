@@ -3,7 +3,7 @@
 //
 
 #include "env.h"
-#include "../src/utils.h"
+//#include "../src/utils.h"
 #include <stdlib.h>
 
 int set_env(ArgsList *args) {

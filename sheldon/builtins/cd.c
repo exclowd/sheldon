@@ -2,11 +2,13 @@
 // Created by kannav on 9/1/20.
 //
 
-#include "cd.h"
-#include "../src/utils.h"
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <linux/limits.h>
+
+#include "cd.h"
+#include "../src/utils.h"
 
 int change_directory(ArgsList *dir) {
   if (dir == NULL) {
