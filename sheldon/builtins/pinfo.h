@@ -9,4 +9,4 @@
 
 int get_process_info(ArgsList *args);
 
-#endif //SHELDON_BUILTINS_PINFO_H
+#endif  // SHELDON_BUILTINS_PINFO_H

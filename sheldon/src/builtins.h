@@ -7,8 +7,8 @@
 
 #include "../builtins/cd.h"
 #include "../builtins/echo.h"
+#include "../builtins/env.h"
 #include "../builtins/ls.h"
 #include "../builtins/pinfo.h"
-#include "../builtins/env.h"
 
-#endif //SHELDON_SRC_BUILTINS_H
+#endif  // SHELDON_SRC_BUILTINS_H

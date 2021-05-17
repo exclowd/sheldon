@@ -7,4 +7,4 @@
 
 extern void display_prompt();
 
-#endif //SHELDON_SRC_PROMPT_H
+#endif  // SHELDON_SRC_PROMPT_H

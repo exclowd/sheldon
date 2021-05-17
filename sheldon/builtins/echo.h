@@ -9,4 +9,4 @@
 
 int echo(ArgsList *args);
 
-#endif //SHELDON_BUILTINS_ECHO_H
+#endif  // SHELDON_BUILTINS_ECHO_H

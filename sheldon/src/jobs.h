@@ -5,8 +5,9 @@
 #ifndef SHELDON_SRC_JOBS_H
 #define SHELDON_SRC_JOBS_H
 
-#include "command.h"
 #include <sys/types.h>
+
+#include "command.h"
 
 typedef struct PROCESS_NODE {
   int _pgid;
@@ -45,4 +46,4 @@ int bg_job(ArgsList *args);
 
 int kill_jobs(ArgsList *args);
 
-#endif //SHELDON_SRC_JOBS_H
+#endif  // SHELDON_SRC_JOBS_H

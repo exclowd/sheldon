@@ -45,12 +45,12 @@ extern char *get_complete_command(char *command, ArgsList *args);
 
 extern char **generate_argv(char *command, ArgsList *list, int starting_index);
 
-extern ArgsList *current; // the current list word
+extern ArgsList *current;  // the current list word
 
-extern ArgsList *nonopt; // start the execution from here
+extern ArgsList *nonopt;  // start the execution from here
 
 extern int get_command_opt(ArgsList *list, char *opts);
 
 extern void reset_get_command_opt(void);
 
-#endif //SHELDON_SRC_COMMAND_H
+#endif  // SHELDON_SRC_COMMAND_H

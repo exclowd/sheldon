@@ -10,4 +10,4 @@ int set_env(ArgsList *arg);
 int unset_env(ArgsList *arg);
 int getenv_internal(ArgsList *arg);
 
-#endif //SHELDON_BUILTINS_ENV_H
+#endif  // SHELDON_BUILTINS_ENV_H

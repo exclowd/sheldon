@@ -12,13 +12,13 @@
 #include <unistd.h>
 
 /*known aliases*/
-#define IS_QUOTE(state) ((state) == SINGLE_QUOTE || (state) == DOUBLE_QUOTE)
+#define IS_QUOTE(state) ((state) == SQUOTE || (state) == DQUOTE)
 
 enum InputState {
   INIT,
-  SIMPLE_WORD,
-  SINGLE_QUOTE,
-  DOUBLE_QUOTE,
+  WORD,
+  SQUOTE,
+  DQUOTE,
   SPACE
 };
 
@@ -27,13 +27,13 @@ char *input;
 static int escaped = 0;
 
 size_t buffer_size = 100;
-size_t input_size;
+size_t inp_it;
 
 static void expand_tilda_to_home(void) {
   size_t len = strlen(home);
   for (int i = 0; i < len; i++) {
-	input[input_size++] = home[i];
-	if (input_size == buffer_size - 1) {
+	input[inp_it++] = home[i];
+	if (inp_it == buffer_size - 1) {
 	  buffer_size += 100;
 	}
 	input = (char *) realloc(input, buffer_size);
@@ -46,7 +46,7 @@ char *read_input() {
   input = (char *) malloc(buffer_size);
   memset(input, 0, buffer_size);
   char c;
-  input_size = 0;
+  inp_it = 0;
   tcsetpgrp(shell_terminal, shell_pgid);
   while ((c = (char) getchar())) {
 	if (c == EOF) {
@@ -58,16 +58,16 @@ char *read_input() {
 	  escaped = 0;
 	  if (IS_QUOTE(state)) {
 		switch (c) {
-		case 'n': input[input_size] = '\n';
+		case 'n': input[inp_it] = '\n';
 		  skip = 1;
 		  break;
-		case 't': input[input_size] = '\t';
+		case 't': input[inp_it] = '\t';
 		  skip = 1;
 		  break;
-		case 's': input[input_size] = ' ';
+		case 's': input[inp_it] = ' ';
 		  skip = 1;
 		  break;
-		case '\\': input[input_size] = '\\';
+		case '\\': input[inp_it] = '\\';
 		  skip = 1;
 		  break;
 		default: break;
@@ -81,11 +81,11 @@ char *read_input() {
 	if (!skip) {
 	  if (isspace(c)) {
 		if (c == '\n') {
-		  if (state == SINGLE_QUOTE) {
-			input[input_size] = c;
+		  if (state == SQUOTE) {
+			input[inp_it] = c;
 			printf("squote>");
-		  } else if (state == DOUBLE_QUOTE) {
-			input[input_size] = c;
+		  } else if (state == DQUOTE) {
+			input[inp_it] = c;
 			printf("dquote>");
 		  } else {
 			break;
@@ -94,55 +94,55 @@ char *read_input() {
 		if (state == SPACE || state == INIT) {
 		  continue;
 		} else {
-		  input[input_size] = c;
+		  input[inp_it] = c;
 		  if (!IS_QUOTE(state)) {
 			state = SPACE;
 		  }
 		}
 	  } else if (c == '"') {
-		input[input_size] = c;
-		if (state == DOUBLE_QUOTE) {
+		input[inp_it] = c;
+		if (state == DQUOTE) {
 		  state = INIT;
-		} else if (state != SINGLE_QUOTE) {
-		  state = DOUBLE_QUOTE;
+		} else if (state != SQUOTE) {
+		  state = DQUOTE;
 		}
 	  } else if (c == '\'') {
-		input[input_size] = c;
-		if (state == SINGLE_QUOTE) {
+		input[inp_it] = c;
+		if (state == SQUOTE) {
 		  state = INIT;
-		} else if (state != DOUBLE_QUOTE) {
-		  state = SINGLE_QUOTE;
+		} else if (state != DQUOTE) {
+		  state = SQUOTE;
 		}
 	  } else if (c == ';') {
-		input[input_size] = c;
+		input[inp_it] = c;
 		if (!IS_QUOTE(state)) {
 		  state = INIT;
 		}
 	  } else if (c == '~') {
 		if (!IS_QUOTE(state)) {
 		  expand_tilda_to_home();
-		  state = SIMPLE_WORD;
+		  state = WORD;
 		  continue;
 		} else {
-		  input[input_size] = c;
+		  input[inp_it] = c;
 		}
 	  } else if (c == '\\') {
 		escaped = 1;
 		continue;
 	  } else {
-		input[input_size] = c;
+		input[inp_it] = c;
 		if (!IS_QUOTE(state)) {
-		  state = SIMPLE_WORD;
+		  state = WORD;
 		}
 	  }
 	}
-	input_size++;
-	if (input_size == buffer_size - 1) {
+	inp_it++;
+	if (inp_it == buffer_size - 1) {
 	  buffer_size += 100;
 	}
 	input = (char *) realloc(input, buffer_size);
   }
-  input[input_size] = '\0';
+  input[inp_it] = '\0';
 
   return input;
 }

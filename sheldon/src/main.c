@@ -1,24 +1,21 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 #include <linux/limits.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
-#include "parse.h"
-#include "input.h"
 #include "command.h"
-#include "utils.h"
 #include "exec.h"
+#include "input.h"
 #include "jobs.h"
+#include "parse.h"
 #include "prompt.h"
+#include "utils.h"
 /*for getting the value of system variables*/
 
-
-void init_terminal() {
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal);
-}
+void init_terminal() { ioctl(STDOUT_FILENO, TIOCGWINSZ, &terminal); }
 
 void ctrl_c_handler(int signal) {
   fflush(stdout);
@@ -32,16 +29,15 @@ void ctrl_z_handler(int signal) {
 }
 
 void init_shell() {
-
-  home = (char *) malloc(PATH_MAX);
+  home = (char *)malloc(PATH_MAX);
   getcwd(home, PATH_MAX);
-  pwd = (char *) malloc(PATH_MAX);
+  pwd = (char *)malloc(PATH_MAX);
   getcwd(pwd, PATH_MAX);
 
   if (!init_job_queue()) {
-	free(home);
-	free(pwd);
-	exit(1);
+    free(home);
+    free(pwd);
+    exit(1);
   }
 
   shell_pgid = getpid();
@@ -56,39 +52,38 @@ void init_shell() {
 }
 
 int main() {
-
   init_shell();
 
   while (1) {
-	init_terminal();
-	display_prompt();
-	if ((inp = read_input()) != NULL) {
-	  /*tokenize based on ';'*/
-	  int len = split_into_commands(&input_argv, inp);
-	  CompoundCommand *command;
+    init_terminal();
+    display_prompt();
+    if ((inp = read_input()) != NULL) {
+      /*tokenize based on ';'*/
+      int len = split_into_commands(&input_argv, inp);
+      CompoundCommand *command;
 
-	  for (int i = 0; i < len; i++) {
-		/*break the string into actual command*/
-		command = generate_command(input_argv[i]);
+      for (int i = 0; i < len; i++) {
+        /*break the string into actual command*/
+        command = generate_command(input_argv[i]);
 
-		if (command != NULL) {
-		  /*set the global command name to be this command*/
-		  current_command = command;
+        if (command != NULL) {
+          /*set the global command name to be this command*/
+          current_command = command;
 
-		  execute_compound_command(command);
-		  free_compound_command(command);
-		}
-		current_command = (CompoundCommand *) NULL;
-	  }
+          execute_compound_command(command);
+          free_compound_command(command);
+        }
+        current_command = (CompoundCommand *)NULL;
+      }
 
-	  free(inp);
-	  free(input_argv);
-	} else {
-	  /*clear the stdin buffer*/
-	  int c;
-	  do {
-		c = getchar();
-	  } while (c != '\n' && c != EOF);
-	}
+      free(inp);
+      free(input_argv);
+    } else {
+      /*clear the stdin buffer*/
+      int c;
+      do {
+        c = getchar();
+      } while (c != '\n' && c != EOF);
+    }
   }
 }

@@ -5,10 +5,7 @@
 #ifndef SHELDON_SRC_PARSE_H
 #define SHELDON_SRC_PARSE_H
 
-enum TokenType {
-  SYMBOL,
-  STRING
-};
+enum TokenType { SYMBOL, STRING };
 
 struct token {
   enum TokenType _type;
@@ -23,4 +20,4 @@ struct token *get_next_token(char *line);
 
 void free_token(void);
 
-#endif //SHELDON_SRC_PARSE_H
+#endif  // SHELDON_SRC_PARSE_H

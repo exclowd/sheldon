@@ -3,6 +3,7 @@
 //
 
 #include "env.h"
+
 #include "../src/utils.h"
 
 //#include "../src/utils.h"
@@ -10,54 +11,54 @@
 
 int set_env(ArgsList *args) {
   if (args == NULL || args->_next == NULL) {
-	EPRINTF("sheldon: setenv: usage: setenv var [value]\n");
-	return -1;
+    EPRINTF("sheldon: setenv: usage: setenv var [value]\n");
+    return -1;
   }
   char *name = args->_text;
   char *val;
   if (args->_next != NULL) {
-	val = args->_next->_text;
+    val = args->_next->_text;
   } else {
-	val = "";
+    val = "";
   }
   if (setenv(name, val, 1) == -1) {
-	perror("sheldon: setenv");
-	return -1;
+    perror("sheldon: setenv");
+    return -1;
   }
   return 0;
 }
 
 int unset_env(ArgsList *args) {
   if (args == NULL || args->_next != NULL) {
-	EPRINTF("sheldon: unsetenv: usage: unsetenv var\n");
-	return -1;
+    EPRINTF("sheldon: unsetenv: usage: unsetenv var\n");
+    return -1;
   }
   char *name = args->_text;
   if (name != NULL) {
-	if (unsetenv(name) == -1) {
-	  perror("sheldon: unsetenv\n");
-	  return -1;
-	}
-	return 0;
+    if (unsetenv(name) == -1) {
+      perror("sheldon: unsetenv\n");
+      return -1;
+    }
+    return 0;
   }
   return -1;
 }
 
 int getenv_internal(ArgsList *args) {
   if (args == NULL) {
-	EPRINTF("sheldon: getenv: usage: getenv args\n");
-	return -1;
+    EPRINTF("sheldon: getenv: usage: getenv args\n");
+    return -1;
   }
   for (ArgsList *curr = args; curr != NULL; curr = curr->_next) {
-	char *name = curr->_text;
-	char *val;
-	val = getenv(name);
-	if (val != NULL) {
-	  printf("%s\n", val);
-	} else {
-	  EPRINTF("sheldon: getenv: %s is not an environment variable\n", name);
-	  return -1;
-	}
+    char *name = curr->_text;
+    char *val;
+    val = getenv(name);
+    if (val != NULL) {
+      printf("%s\n", val);
+    } else {
+      EPRINTF("sheldon: getenv: %s is not an environment variable\n", name);
+      return -1;
+    }
   }
   return 0;
 }

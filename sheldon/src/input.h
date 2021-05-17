@@ -15,7 +15,7 @@ typedef struct SHELDON_INPUT {
 
 extern char *input;
 
-extern size_t input_size;
+extern size_t inp_it;
 
 extern size_t buffer_size;
 

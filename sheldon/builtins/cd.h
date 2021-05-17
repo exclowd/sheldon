@@ -11,4 +11,4 @@ int change_directory(ArgsList *dir);
 
 int print_current_working_directory(ArgsList *dir);
 
-#endif //SHELDON_BUILTINS_CD_H
+#endif  // SHELDON_BUILTINS_CD_H

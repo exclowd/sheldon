@@ -9,4 +9,4 @@
 
 int list_files_internal(ArgsList *args);
 
-#endif //SHELDON_BUILTINS_LS_H
+#endif  // SHELDON_BUILTINS_LS_H

@@ -3,10 +3,12 @@
 //
 
 #include "utils.h"
-#include "command.h"
-#include "jobs.h"
+
 #include <stdlib.h>
 #include <termios.h>
+
+#include "command.h"
+#include "jobs.h"
 
 char *home;
 
