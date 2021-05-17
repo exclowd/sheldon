@@ -55,5 +55,5 @@ dkms.conf
 
 # CMake Aritifacts
 compile_commands.json
-cmake-build-debug
-
+cmake-build-*
+build
