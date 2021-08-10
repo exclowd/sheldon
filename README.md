@@ -1,5 +1,8 @@
-#SHELDON
+# Sheldon
+> ⚠ To all juniors who are here, the shell does not work properly. I broke it purposefully. Don't copy blindly.
 
+
+## About 
 It's a basic shell. 
 The following functions are implemented
 
@@ -16,19 +19,17 @@ The following functions are implemented
 * Pipleline support and I/O redirection
 
 
-### Assumptions:
+## Assumptions:
 * No assumptions in input_string size.
 * Multiline echo
 * Username is truncated to 100 digits
 * ~ expansion is supported in echo also, use quotes for character '~'
 * No no to pipe in background
 
-###  TODO
-- [ ]  Implement History through GNU readline
-- [ ]  Add support for '()' in the generate_command
+##  TODO
 - [ ]  Convert the process list into a hash map
 
-##### File Structure
+## File Structure
 * main.c : main loop of the shell.
 * input_string.c : reads input_string from stdin.
 * parse.c : parses the input_string and tokenizes into commands.
