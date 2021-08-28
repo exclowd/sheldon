@@ -18,12 +18,12 @@
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
 
-JobList *jobList = NULL;
+joblist_t *jobList = NULL;
 
 int last_job_id = 0;
 
-static JobInternal *create_node(int job_id, pid_t pid, char *command) {
-  JobInternal *new_node = malloc(sizeof(JobInternal));
+static job_t *create_node(int job_id, pid_t pid, char *command) {
+  job_t *new_node = malloc(sizeof(job_t));
   if (!new_node) {
     return NULL;
   }
@@ -34,8 +34,8 @@ static JobInternal *create_node(int job_id, pid_t pid, char *command) {
   return new_node;
 }
 
-static JobList *make_list() {
-  JobList *list = malloc(sizeof(JobList));
+static joblist_t *make_list() {
+  joblist_t *list = malloc(sizeof(joblist_t));
   if (!list) {
     return NULL;
   }
@@ -43,7 +43,7 @@ static JobList *make_list() {
   return list;
 }
 
-static void delete_list(JobList *job) { free(job); }
+static void delete_list(joblist_t *job) { free(job); }
 
 static char get_proc_status(pid_t pid) {
   char *proc = (char *)malloc(PATH_MAX);
@@ -66,7 +66,7 @@ static char get_proc_status(pid_t pid) {
   return status[0];
 }
 
-static void display_job_status(JobInternal *j) {
+static void display_job_status(job_t *j) {
   printf("[%d] ", j->_jobid);
   char c = get_proc_status(j->_pgid);
   switch (c) {
@@ -83,17 +83,17 @@ static void display_job_status(JobInternal *j) {
   printf(" %s [%d]\n", j->_command, j->_pgid);
 }
 
-static void display_all_jobs(JobList *list) {
+static void display_all_jobs(joblist_t *list) {
   if (list->head == NULL) {
     return;
   }
-  for (JobInternal *curr = list->head; curr != NULL; curr = curr->_next) {
+  for (job_t *curr = list->head; curr != NULL; curr = curr->_next) {
     display_job_status(curr);
   }
 }
 
-static JobInternal *add(int pid, char *command, JobList *list) {
-  JobInternal *curr = NULL;
+static job_t *add(int pid, char *command, joblist_t *list) {
+  job_t *curr = NULL;
   int job_id = last_job_id + 1;
   last_job_id = job_id;
   if (list->head == NULL) {
@@ -109,9 +109,9 @@ static JobInternal *add(int pid, char *command, JobList *list) {
   }
 }
 
-static void delete (int pid, JobList *list) {
-  JobInternal *curr = list->head;
-  JobInternal *previous = curr;
+static void delete (int pid, joblist_t *list) {
+  job_t *curr = list->head;
+  job_t *previous = curr;
   while (curr != NULL) {
     if (curr->_pgid == pid) {
       previous->_next = curr->_next;
@@ -127,8 +127,8 @@ static void delete (int pid, JobList *list) {
   }
 }
 
-static JobInternal *find(pid_t pid, JobList *list) {
-  JobInternal *curr = list->head;
+static job_t *find(pid_t pid, joblist_t *list) {
+  job_t *curr = list->head;
   while (curr != NULL) {
     if (curr->_pgid == pid) {
       return curr;
@@ -138,8 +138,8 @@ static JobInternal *find(pid_t pid, JobList *list) {
   return NULL;
 }
 
-static JobInternal *get_job(int jobid, JobList *list) {
-  JobInternal *curr = list->head;
+static job_t *get_job(int jobid, joblist_t *list) {
+  job_t *curr = list->head;
   while (curr != NULL) {
     if (curr->_jobid == jobid) {
       return curr;
@@ -149,14 +149,14 @@ static JobInternal *get_job(int jobid, JobList *list) {
   return NULL;
 }
 
-int kill_job(ArgsList *args) {
+int kill_job(arglist_t *args) {
   if (len(args) != 2) {
     printf("sheldon: kill: invalid arguments\n");
   } else {
     char *ptr;
     int job = strtol(args->_text, &ptr, 10);
     int sig = atoi(args->_next->_text);
-    JobInternal *j;
+    job_t *j;
     if ((j = get_job(job, jobList)) != NULL) {
       killpg(j->_pgid, sig);
       return 0;
@@ -172,8 +172,8 @@ int kill_job(ArgsList *args) {
 }
 
 void kill_all_bg_jobs(void) {
-  JobInternal *curr = jobList->head;
-  JobInternal *next;
+  job_t *curr = jobList->head;
+  job_t *next;
   while (curr != NULL) {
     free(curr->_command);
     kill(-(curr->_pgid), SIGKILL);
@@ -183,7 +183,7 @@ void kill_all_bg_jobs(void) {
   }
 }
 
-int kill_jobs(ArgsList *args) {
+int kill_jobs(arglist_t *args) {
   int n = len(args);
   if (n != 0) {
     printf("sheldon: kjob: No arguments were expected");
@@ -201,7 +201,7 @@ int init_job_queue() {
 }
 
 int add_job(int pgid, char *command) {
-  JobInternal *new_job = add(pgid, command, jobList);
+  job_t *new_job = add(pgid, command, jobList);
   if (new_job != NULL) {
     printf("[%d] %s %d\n", new_job->_jobid, new_job->_command, new_job->_pgid);
   }
@@ -211,7 +211,7 @@ int add_job(int pgid, char *command) {
 void poll_for_exited_jobs(int sig) {
   int status;
   pid_t pgid;
-  JobInternal *job = NULL;
+  job_t *job = NULL;
   while (1) {
     pgid = waitpid(-1, &status, WNOHANG);
     if (pgid < 0 && errno != ECHILD) {
@@ -237,7 +237,7 @@ void poll_for_exited_jobs(int sig) {
   }
 }
 
-int print_jobs(ArgsList *args) {
+int print_jobs(arglist_t *args) {
   if (args != NULL) {
     fprintf(stderr, "sheldon: jobs: No args needed\n");
     return -1;
@@ -247,7 +247,7 @@ int print_jobs(ArgsList *args) {
   }
 }
 
-void put_job_in_fg(JobInternal *j, int cont) {
+void put_job_in_fg(job_t *j, int cont) {
   signal(SIGTTIN, SIG_IGN);
   signal(SIGTTOU, SIG_IGN);
 
@@ -286,16 +286,16 @@ void put_job_in_fg(JobInternal *j, int cont) {
 
 void put_job_in_bg(pid_t pid, int cont) {
   setpgid(pid, pid);
-  SimpleCommand *command = current_simple_command;
+  command_t *command = current_simple_command;
   add_job(pid, get_complete_command(command->_name, command->_args));
-  JobInternal *j = find(pid, jobList);
+  job_t *j = find(pid, jobList);
   if (cont) {
     if (kill(-j->_pgid, SIGCONT) < 0) perror("kill (SIGCONT)");
   }
   printf("[%d] %d suspended %s\n", j->_jobid, j->_pgid, j->_command);
 }
 
-int fg_job(ArgsList *args) {
+int fg_job(arglist_t *args) {
   int n = len(args);
   if (n != 1) {
     printf("sheldon: job: expected 1 argument found %d\n", n);
@@ -303,8 +303,8 @@ int fg_job(ArgsList *args) {
   }
 
   int job_id = atoi(args->_text);
-  JobInternal *j;
-  if ((j = get_job(job_id, jobList)) != (JobInternal *)NULL) {
+  job_t *j;
+  if ((j = get_job(job_id, jobList)) != (job_t *)NULL) {
     put_job_in_fg(j, 1);
     return 0;
   } else {
@@ -317,15 +317,15 @@ int fg_job(ArgsList *args) {
   return 0;
 }
 
-int bg_job(ArgsList *args) {
+int bg_job(arglist_t *args) {
   int n = len(args);
   if (n != 1) {
     printf("sheldon: job: expected 1 argument found %d\n", n);
     return -1;
   }
   int job_id = atoi(args->_text);
-  JobInternal *j;
-  if ((j = get_job(job_id, jobList)) != (JobInternal *)NULL) {
+  job_t *j;
+  if ((j = get_job(job_id, jobList)) != (job_t *)NULL) {
     if (kill(-j->_pgid, SIGCONT) < 0) perror("kill (SIGCONT)");
     return 0;
   } else {

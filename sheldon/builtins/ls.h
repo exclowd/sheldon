@@ -7,6 +7,6 @@
 
 #include "../src/command.h"
 
-int list_files_internal(ArgsList *args);
+int list_files_internal(arglist_t *args);
 
 #endif  // SHELDON_BUILTINS_LS_H

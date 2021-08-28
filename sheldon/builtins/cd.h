@@ -7,8 +7,8 @@
 
 #include "../src/command.h"
 
-int change_directory(ArgsList *dir);
+int change_directory(arglist_t *dir);
 
-int print_current_working_directory(ArgsList *dir);
+int print_current_working_directory(arglist_t *dir);
 
 #endif  // SHELDON_BUILTINS_CD_H

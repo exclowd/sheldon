@@ -7,6 +7,6 @@
 
 #include "../src/command.h"
 
-int echo(ArgsList *args);
+int echo(arglist_t *args);
 
 #endif  // SHELDON_BUILTINS_ECHO_H

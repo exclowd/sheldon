@@ -10,32 +10,32 @@
 #include "parse.h"
 #include "utils.h"
 
-CompoundCommand *current_command;
+ccommand_t *current_command;
 
-SimpleCommand *current_simple_command;
+command_t *current_simple_command;
 
-CompoundCommand *new_compound_command() {
-  CompoundCommand *curr_comp;
-  curr_comp = (CompoundCommand *)malloc(sizeof(CompoundCommand));
+ccommand_t *new_compound_command() {
+  ccommand_t *curr_comp;
+  curr_comp = (ccommand_t *)malloc(sizeof(ccommand_t));
   curr_comp->_outFile = curr_comp->_inFile = NULL;
   curr_comp->_append_input = curr_comp->_background = 0;
   return curr_comp;
 }
 
-CompoundCommand *generate_command(char *line) {
+ccommand_t *generate_command(char *line) {
   /**
    * Generate command from the input string
    * @param line
    */
-  CompoundCommand *curr_comp = new_compound_command();
+  ccommand_t *curr_comp = new_compound_command();
   int is_start = 1;
   int anticipate = 1;
 
-  SimpleCommandList *head = (SimpleCommandList *)NULL;
+  commandlist_t *head = (commandlist_t *)NULL;
 
   // keep inputting commands unless disturbed
   while (1) {
-    struct token *token = get_next_token((is_start ? line : (char *)NULL));
+    token_t *token = get_next_token((is_start ? line : (char *)NULL));
     if (token == NULL) {
       if (anticipate) {
         EPRINTF("sheldon: syntax: command anticipated found nothing\n");
@@ -43,10 +43,10 @@ CompoundCommand *generate_command(char *line) {
       }
       break;
     }
-    SimpleCommandList *cmnd_list =
-        (SimpleCommandList *)malloc(sizeof(SimpleCommandList));
-    SimpleCommand *curr_simp_cmnd = (SimpleCommand *)malloc(
-        sizeof(SimpleCommand));  // current simple command
+    commandlist_t *cmnd_list =
+        (commandlist_t *)malloc(sizeof(commandlist_t));
+    command_t *curr_simp_cmnd = (command_t *)malloc(
+        sizeof(command_t));  // current simple command
     curr_simp_cmnd->_args = NULL;
     // Put command in front of command list
     cmnd_list->_command = curr_simp_cmnd;
@@ -70,15 +70,15 @@ CompoundCommand *generate_command(char *line) {
       return NULL;
     }
 
-    ArgsList *args;
+    arglist_t *args;
 
     int simple_command_complete = 0;
 
     anticipate = 0;
 
     // keep filling arguments unless interrupted
-    while ((token = get_next_token(NULL)) != (struct token *)NULL) {
-      Argument *buf = (Argument *)malloc(sizeof(Argument));
+    while ((token = get_next_token(NULL)) != (token_t *)NULL) {
+      arg_t *buf = (arg_t *)malloc(sizeof(arg_t));
       char *curr_word;
       char *text = token->_text;
 
@@ -185,9 +185,9 @@ CompoundCommand *generate_command(char *line) {
   return curr_comp;
 }
 
-static void free_command(SimpleCommand *command) {
-  ArgsList *head = command->_args;
-  ArgsList *tmp;
+static void free_command(command_t *command) {
+  arglist_t *head = command->_args;
+  arglist_t *tmp;
   while (head != NULL) {
     tmp = head;
     head = head->_next;
@@ -198,9 +198,9 @@ static void free_command(SimpleCommand *command) {
   free(command);
 }
 
-void free_compound_command(CompoundCommand *cc) {
-  SimpleCommandList *head = cc->_simple_commands;
-  SimpleCommandList *tmp;
+void free_compound_command(ccommand_t *cc) {
+  commandlist_t *head = cc->_simple_commands;
+  commandlist_t *tmp;
 
   while (head != NULL) {
     tmp = head;
@@ -213,9 +213,9 @@ void free_compound_command(CompoundCommand *cc) {
   free(cc);
 }
 
-int len(ArgsList *list) {
+int len(arglist_t *list) {
   register int i;
-  if (list == (ArgsList *)NULL) {
+  if (list == (arglist_t *)NULL) {
     return 0;
   }
   for (i = 0; list; list = list->_next, i++)
@@ -225,17 +225,17 @@ int len(ArgsList *list) {
 
 /* getting alternate representations of the command*/
 
-char *get_complete_command(char *command, ArgsList *args) {
+char *get_complete_command(char *command, arglist_t *args) {
   char *str;
   size_t len = strlen(command);
-  for (Argument *curr = args; curr != NULL; curr = curr->_next) {
+  for (arg_t *curr = args; curr != NULL; curr = curr->_next) {
     len += 1 + strlen(curr->_text);
   }
   str = (char *)malloc(len + 1);
   size_t pos = 0;
   strncpy(str + pos, command, strlen(command));
   pos += strlen(command);
-  for (ArgsList *curr = args; curr != NULL; curr = curr->_next) {
+  for (arglist_t *curr = args; curr != NULL; curr = curr->_next) {
     str[pos++] = ' ';
     strncpy(str + pos, curr->_text, strlen(curr->_text));
     pos += strlen(curr->_text);
@@ -244,7 +244,7 @@ char *get_complete_command(char *command, ArgsList *args) {
   return str;
 }
 
-char **generate_argv(char *command, ArgsList *list, int starting_index) {
+char **generate_argv(char *command, arglist_t *list, int starting_index) {
   int count;
   char **array;
 
@@ -264,13 +264,13 @@ char **generate_argv(char *command, ArgsList *list, int starting_index) {
 
 static int idx = 1;
 
-static ArgsList *head = (ArgsList *)NULL;  // saves last used list
+static arglist_t *head = (arglist_t *)NULL;  // saves last used list
 
-ArgsList *current = (ArgsList *)NULL;  // the current list word
+arglist_t *current = (arglist_t *)NULL;  // the current list word
 
-ArgsList *nonopt;  // start the execution from here
+arglist_t *nonopt;  // start the execution from here
 
-int get_command_opt(ArgsList *list, char *opts) {
+int get_command_opt(arglist_t *list, char *opts) {
   char c;
 
   if (list == 0) {
@@ -286,7 +286,7 @@ int get_command_opt(ArgsList *list, char *opts) {
   if (idx == 1) {  // starting a arg
     if (current == NULL) {
       // nothing here
-      head = (ArgsList *)NULL;
+      head = (arglist_t *)NULL;
       if (nonopt == NULL) {
         nonopt = current;  // If it is null then the standard measures are to be
                            // taken
@@ -318,4 +318,4 @@ int get_command_opt(ArgsList *list, char *opts) {
   return c;
 }
 
-void reset_get_command_opt(void) { head = current = nonopt = (ArgsList *)NULL; }
+void reset_get_command_opt(void) { head = current = nonopt = (arglist_t *)NULL; }

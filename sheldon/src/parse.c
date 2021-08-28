@@ -33,9 +33,9 @@ enum ParserState { INIT, WORD, SQUOTE, DQUOTE, SPACE };
 static int i = 0;  // number of parsed tokens in current command line
 static int l = 0;
 static char *input;  // The input source
-static struct token *curr_token = (struct token *)NULL;
+static token_t *curr_token = (token_t *)NULL;
 
-static void load_token(struct token *tok, char *string, enum TokenType state) {
+static void load_token(token_t *tok, char *string, enum TOKEN_TYPE state) {
   size_t len = strlen(string);
   tok->_text = (char *)malloc(len + 1);
   strncpy(tok->_text, string, len);
@@ -43,16 +43,7 @@ static void load_token(struct token *tok, char *string, enum TokenType state) {
   tok->_type = state;
 }
 
-void free_token(void) {
-  if (curr_token != NULL) {
-    if (curr_token->_text != NULL) {
-      free(curr_token->_text);
-    }
-    free(curr_token);
-  }
-}
-
-struct token *get_next_token(char *line) {
+token_t *get_next_token(char *line) {
   enum ParserState curr_state = INIT;
   char c;
 
@@ -69,7 +60,7 @@ struct token *get_next_token(char *line) {
     }
   }
 
-  curr_token = (struct token *)malloc(sizeof(struct token));
+  curr_token = (token_t *)malloc(sizeof(token_t));
   curr_token->_text = NULL;
 
   char *starting_pos = input + i;
@@ -153,4 +144,14 @@ struct token *get_next_token(char *line) {
     return curr_token;
   }
   return NULL;
+}
+
+
+void free_token(void) {
+  if (curr_token != NULL) {
+    if (curr_token->_text != NULL) {
+      free(curr_token->_text);
+    }
+    free(curr_token);
+  }
 }

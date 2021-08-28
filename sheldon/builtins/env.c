@@ -9,7 +9,7 @@
 //#include "../src/utils.h"
 #include <stdlib.h>
 
-int set_env(ArgsList *args) {
+int set_env(arglist_t *args) {
   if (args == NULL || args->_next == NULL) {
     EPRINTF("sheldon: setenv: usage: setenv var [value]\n");
     return -1;
@@ -28,7 +28,7 @@ int set_env(ArgsList *args) {
   return 0;
 }
 
-int unset_env(ArgsList *args) {
+int unset_env(arglist_t *args) {
   if (args == NULL || args->_next != NULL) {
     EPRINTF("sheldon: unsetenv: usage: unsetenv var\n");
     return -1;
@@ -44,12 +44,12 @@ int unset_env(ArgsList *args) {
   return -1;
 }
 
-int getenv_internal(ArgsList *args) {
+int getenv_internal(arglist_t *args) {
   if (args == NULL) {
     EPRINTF("sheldon: getenv: usage: getenv args\n");
     return -1;
   }
-  for (ArgsList *curr = args; curr != NULL; curr = curr->_next) {
+  for (arglist_t *curr = args; curr != NULL; curr = curr->_next) {
     char *name = curr->_text;
     char *val;
     val = getenv(name);

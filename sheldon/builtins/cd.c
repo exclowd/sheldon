@@ -11,7 +11,7 @@
 
 #include "../src/utils.h"
 
-int change_directory(ArgsList *dir) {
+int change_directory(arglist_t *dir) {
   if (dir == NULL) {
     chdir(home);
     strcpy(pwd, home);
@@ -29,7 +29,7 @@ int change_directory(ArgsList *dir) {
   return 0;
 }
 
-int print_current_working_directory(ArgsList *dir) {
+int print_current_working_directory(arglist_t *dir) {
   if (dir == NULL) {
     printf("%s\n", pwd);
   } else {

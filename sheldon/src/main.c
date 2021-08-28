@@ -60,7 +60,7 @@ int main() {
     if ((inp = read_input()) != NULL) {
       /*tokenize based on ';'*/
       int len = split_into_commands(&input_argv, inp);
-      CompoundCommand *command;
+      ccommand_t *command;
 
       for (int i = 0; i < len; i++) {
         /*break the string into actual command*/
@@ -73,7 +73,7 @@ int main() {
           execute_compound_command(command);
           free_compound_command(command);
         }
-        current_command = (CompoundCommand *)NULL;
+        current_command = (ccommand_t *)NULL;
       }
 
       free(inp);

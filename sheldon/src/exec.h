@@ -9,7 +9,7 @@
 
 #include "command.h"
 
-extern int execute_compound_command(CompoundCommand *cc);
+extern int execute_compound_command(ccommand_t *cc);
 
 extern pid_t child_pgid;
 

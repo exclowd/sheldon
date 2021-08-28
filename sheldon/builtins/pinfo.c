@@ -61,11 +61,11 @@ void get_process_info_internal(pid_t pid) {
   free(exec);
 }
 
-int get_process_info(ArgsList *args) {
-  if (args == (ArgsList *)NULL) {
+int get_process_info(arglist_t *args) {
+  if (args == (arglist_t *)NULL) {
     get_process_info_internal(getpid());
   } else {
-    for (ArgsList *curr = args; curr != NULL; curr = curr->_next) {
+    for (arglist_t *curr = args; curr != NULL; curr = curr->_next) {
       char *endptr;
       errno = 0;
       long pid = strtol(curr->_text, &endptr, 10);

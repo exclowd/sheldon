@@ -7,11 +7,11 @@
 
 #include <stdio.h>
 
-typedef struct SHELDON_INPUT {
+typedef struct INPUT {
   char *input;
   size_t size;
   size_t buffer_size;
-} __attribute__((aligned(32))) Input;
+} __attribute__((aligned(32))) input_t;
 
 extern char *input;
 

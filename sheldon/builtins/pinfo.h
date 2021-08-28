@@ -7,6 +7,6 @@
 
 #include "../src/command.h"
 
-int get_process_info(ArgsList *args);
+int get_process_info(arglist_t *args);
 
 #endif  // SHELDON_BUILTINS_PINFO_H

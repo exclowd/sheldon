@@ -20,13 +20,13 @@ static const char *builtins[] = {
     "cd",       "pwd",    "echo", "pinfo", "ls", "exit", "setenv",
     "unsetenv", "getenv", "jobs", "kjob",  "fg", "bg",   "overkill"};
 
-static int (*builtin_functions[])(ArgsList *arg) = {
+static int (*builtin_functions[])(arglist_t *arg) = {
     change_directory,
     print_current_working_directory,
     echo,
     get_process_info,
     list_files_internal,
-    (int (*)(ArgsList *))exit_successfully,
+    (int (*)(arglist_t *))exit_successfully,
     set_env,
     unset_env,
     getenv_internal,
@@ -38,7 +38,7 @@ static int (*builtin_functions[])(ArgsList *arg) = {
 
 pid_t child_pgid = -1;
 
-static int execute_system_command(char *command, ArgsList *arg, int flag) {
+static int execute_system_command(char *command, arglist_t *arg, int flag) {
   pid_t child_pid;
   char **argv;
   int status = 0;
@@ -102,9 +102,9 @@ static int execute_system_command(char *command, ArgsList *arg, int flag) {
   return -1;
 }
 
-static int execute_simple_command(SimpleCommand *cc, int flag) {
+static int execute_simple_command(command_t *cc, int flag) {
   char *command = cc->_name;
-  ArgsList *arg = cc->_args;
+  arglist_t *arg = cc->_args;
 
   int ret = 0;
 
@@ -132,7 +132,7 @@ static int execute_simple_command(SimpleCommand *cc, int flag) {
   return ret;
 }
 
-int execute_compound_command(CompoundCommand *cc) {
+int execute_compound_command(ccommand_t *cc) {
   int saved_stdin = dup(STDIN_FILENO);
   int saved_stdout = dup(STDOUT_FILENO);
 
@@ -149,7 +149,7 @@ int execute_compound_command(CompoundCommand *cc) {
 
   int ret = 0;
   int output_fd;
-  for (SimpleCommandList *curr = cc->_simple_commands; curr != NULL;
+  for (commandlist_t *curr = cc->_simple_commands; curr != NULL;
        curr = curr->_next) {
     dup2(input_fd, STDIN_FILENO);  // set 0 to correspond to input fd
     close(input_fd);               // corresponds to no file now

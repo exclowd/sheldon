@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int echo(ArgsList *args) {
+int echo(arglist_t *args) {
   while (args != NULL) {
     if (args->_text != NULL) {
       int quotes = 0;

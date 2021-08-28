@@ -346,7 +346,7 @@ static int is_dir(char *dir) {
   return S_ISDIR(dir_stat.st_mode);
 }
 
-int list_files_internal(ArgsList *args) {
+int list_files_internal(arglist_t *args) {
   if (args == NULL) {
     enumerate_files_in_dir(".", 0, 0);
     return 0;
@@ -374,12 +374,12 @@ int list_files_internal(ArgsList *args) {
     enumerate_files_in_dir(".", all, ll);
   } else {
     int cnt = 0;
-    for (ArgsList *curr = nonopt; curr != NULL; curr = curr->_next) {
+    for (arglist_t *curr = nonopt; curr != NULL; curr = curr->_next) {
       if (*(curr->_text) != '-') {
         cnt++;
       }
     }
-    for (ArgsList *curr = nonopt; curr != NULL; curr = curr->_next) {
+    for (arglist_t *curr = nonopt; curr != NULL; curr = curr->_next) {
       if (*(curr->_text) != '-') {
         if (cnt > 1) printf("%s:\n", curr->_text);
         if (is_dir(curr->_text)) {
