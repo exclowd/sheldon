@@ -1,5 +1,5 @@
 # Sheldon
-> ⚠ To all juniors who are here, the shell does not work properly. I broke it purposefully. Don't copy blindly.
+> ⚠ To all juniors who are here,Don't copy blindly.
 
 
 ## About 
