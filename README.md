@@ -1,4 +1,4 @@
-#SHELDON
+SHELDON
 
 It's a basic shell. 
 The following functions are implemented
@@ -28,7 +28,7 @@ The following functions are implemented
 - [ ]  Add support for '()' in the parser
 - [ ]  Convert the process list into a hash map
 
-##### File Structure
+### File Structure
 * main.c : main loop of the shell.
 * input_string.c : reads input_string from stdin.
 * parse.c : parses the input_string and tokenizes into commands.
